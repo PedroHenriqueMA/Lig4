@@ -10,7 +10,12 @@ typedef struct{
 } Ficha;
 
 typedef struct{
-    Ficha tabuleiro[7][7];
+    int vazio;
+    Ficha ficha;
+}Casa;
+
+typedef struct{
+    Casa tabuleiro[7][7];
 } Tabuleiro7x7;
 
 // Função para gerar uma matriz de fichas nulas com um tamanho indefinido

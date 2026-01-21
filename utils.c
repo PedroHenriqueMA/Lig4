@@ -17,23 +17,26 @@ Tabuleiro7x7 MontarTabuleiro(int coluna, int linhas){
 
     for(int i = 0; i < coluna; i++){
         for(int j = 0; j < linhas; j++){
-            tab.tabuleiro[i][j] = nula;
+            tab.tabuleiro[i][j].ficha = nula;
+            tab.tabuleiro[i][j].vazio = 1;
         }
     }
 
     return tab;
 }
 
-void CarregarJogo(Tabuleiro7x7 tabuleiro){
+void CarregarJogo(Tabuleiro7x7 jogo){
     for(int linha = 0; linha < 8; linha++){
         for(int col = 0; col < 7; col++){
             if(linha<7){
-                Ficha ficha = tabuleiro.tabuleiro[linha][col];
-                if (strcmp(ficha.dono, "jog1") == 0) {
+                Casa casa = jogo.tabuleiro[linha][col];
+                if(casa.vazio)
+                    printf(" . ");
+                else if (strcmp(casa.ficha.dono, "jog1") == 0) {
                     printf(" X ");
-                } else if (strcmp(ficha.dono, "jog2") == 0) {
+                } else if (strcmp(casa.ficha.dono, "jog2") == 0) {
                     printf(" O ");
-                } else if (strcmp(ficha.dono, "nulo") == 0) {
+                } else if (strcmp(casa.ficha.dono, "nulo") == 0) {
                     printf(" . ");
                 } else {
                     printf(" ? ");
