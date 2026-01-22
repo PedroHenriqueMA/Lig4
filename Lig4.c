@@ -8,7 +8,7 @@
 int main(){
 
     int escolha = 0;
-    Tabuleiro7x7 jogo;
+    Tabuleiro6x7 jogo;
 
     do{
         
@@ -28,6 +28,8 @@ int main(){
         switch(escolha){
         case 1:
             jogo = MontarJogo();
+            Ficha ficha1 = {"jog1", "normal"};
+            jogada(&jogo, ficha1);
             return 0;
             break;
         case 2:
