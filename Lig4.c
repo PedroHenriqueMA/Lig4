@@ -27,10 +27,7 @@ int main(){
 
         switch(escolha){
         case 1:
-            jogo = MontarJogo();
-            Ficha ficha1 = {"jog1", "normal"};
-            jogada(&jogo, ficha1);
-            return 0;
+            PrincipalJxJ();
             break;
         case 2:
             continue;

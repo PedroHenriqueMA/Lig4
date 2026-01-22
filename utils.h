@@ -5,6 +5,15 @@
 void LimparTerminal();
 
 typedef struct{
+    char nome[20];
+    int turno;
+    int QtdFichaNormal;
+    int QtdFichaExplosiva;
+    int QtdFichaPortal;
+    int precedencia;
+} jogador;
+
+typedef struct{
     char dono[20];
     char tipo[20];
 } Ficha;
@@ -45,4 +54,13 @@ void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha);
 // Verifica se ainda existe ao menos uma jogada valida e realiza a jogada
 void jogada(Tabuleiro6x7 *jogo, Ficha ficha);
 
+Ficha SelecionarFicha(jogador *player);
+
+void CriarJogador(jogador *player, int precedencia);
+
+void ExibirDadosDeJogador(jogador player);
+
+void IniciarTurnoDoJogador(jogador *player);
+
+void PrincipalJxJ();
 #endif
