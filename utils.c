@@ -30,28 +30,40 @@ Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
 
 void CarregarJogo(Tabuleiro6x7 jogo){
     LimparTerminal();
+    printf("\n\n");
     for(int li = 0; li < (linhas+1); li++){
         for(int col = 0; col < colunas; col++){
+
             if(li<linhas){
                 Casa casa = jogo.tabuleiro[li][col];
+
                 if(casa.vazio)
                     printf(" . ");
-                else if (strcmp(casa.ficha.dono, "jog1") == 0) {
-                    printf("\033[34m X \033[0m");
-                } else if (strcmp(casa.ficha.dono, "jog2") == 0) {
-                    printf("\033[31m O \033[0m");
-                } else if (strcmp(casa.ficha.dono, "nulo") == 0) {
-                    printf(" . ");
-                } else {
-                    printf(" ? ");
+
+                if(strcmp(casa.ficha.dono, "jog1") == 0){
+                    if(casa.ficha.tipo == "explo")
+                        printf("\033[34m Q \033[0m");
+
+                    else
+                        printf("\033[34m X \033[0m");
                 }
+                    
+                if(strcmp(casa.ficha.dono, "jog2") == 0){
+                    if(casa.ficha.tipo == "explo")
+                        printf("\033[31m Q \033[0m");
+
+                    else
+                        printf("\033[31m O \033[0m");
+                } 
+
             }
+
             else{
-                if(jogo.tabuleiro[0][col].vazio == 0){
+                if(jogo.tabuleiro[0][col].vazio == 0)
                     printf("\033[31m %d \033[0m", col + 1);
-                } else {
+                else
                     printf(" %d ", col + 1);
-                }
+                
             }
         }
         printf("\n");
