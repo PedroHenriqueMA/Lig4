@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <windows.h>
 #include "utils.h"
 
 void LimparTerminal() {
@@ -9,6 +11,16 @@ void LimparTerminal() {
 #else
     system("clear");
 #endif
+}
+
+void esperar(int segundos){
+    #ifdef _WIN32
+        Sleep(segundos * 1000);
+    
+    #else
+        usleep(segundos);
+    
+    #endif
 }
 
 const int linhas = 6;
@@ -129,19 +141,20 @@ void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
     }
 }
 
-void jogada(Tabuleiro6x7 *jogo, Ficha ficha){
-    int canPlay = 0;
+int VerificarLotacao(Tabuleiro6x7 *jogo){
+    int lotado = 1;
     for(int col = 0; col < colunas; col++){
         if(jogo->tabuleiro[0][col].vazio){
-            canPlay = 1;
+            lotado = 0;
             break;
         }
     }
-    if(!canPlay){
-        printf("Tabuleiro cheio! Jogo empatado.\n");
-        return;
-    }
+    return lotado;
+}
 
+void jogada(Tabuleiro6x7 *jogo, Ficha ficha){
+    /*existia uma verificação aqui, mas essa verificação funcionava melhor como uma função a parte.*/
+    /*da forma como o codigo está organizado, adicionar uma verficação aqui seria redundante*/
     verificarJogada(jogo, ficha);
 }
 
@@ -163,7 +176,7 @@ void CriarJogador(jogador *player, int precedencia){
 }
 
 void ExibirDadosDeJogador(jogador player){
-    printf("Jogador 1: %s\n", player.nome);
+    printf("Jogador %d: %s\n", player.precedencia, player.nome);
     printf("turno: %d\n", player.turno);
     printf("QTD fichas normais(1): %d\n", player.QtdFichaNormal);
     printf("QTD fichas explosivas(2): %d\n", player.QtdFichaExplosiva);
@@ -249,16 +262,46 @@ void PrincipalJxJ(){
     while(1){
         TurnoGlobal++;
         CarregarJogo(jogo);
+        if(VerificarLotacao( &jogo)){
+            printf("jogo encerrado, tabaluleiro lotado\n");
+            printf("Partida empatada\n");
+            break;
+        }
+
+        int jogador1TotalFicha = jogador1.QtdFichaNormal + jogador1.QtdFichaExplosiva + jogador1.QtdFichaPortal;
+        int jogador2TotalFicha = jogador2.QtdFichaNormal + jogador2.QtdFichaExplosiva + jogador2.QtdFichaPortal;
+
+        if(jogador1TotalFicha == 0 && jogador2TotalFicha == 0){
+            printf("jogo encerrado, sem fichas restantes\n");
+            printf("Partida empatada\n");
+            break;
+        }
 
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&jogador2);
             ExibirDadosDeJogador(jogador2);
+
+            if(jogador2TotalFicha == 0){
+                printf("\nSem fichas disponiveis\n");
+                printf("Iniciando turno do proximo jogador\n");
+                esperar(2);
+                continue;
+            }
+
             Ficha Ficha = SelecionarFicha(&jogador2);
             jogada(&jogo, Ficha);
         }
         else{
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
+
+            if(jogador1TotalFicha == 0){
+                printf("\nSem fichas disponiveis\n");
+                printf("Iniciando turno do proximo jogador\n");
+                sleep(2);
+                continue;
+            }
+
             Ficha Ficha = SelecionarFicha(&jogador1);
             jogada(&jogo, Ficha);
         }

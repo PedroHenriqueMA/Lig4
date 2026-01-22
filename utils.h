@@ -54,13 +54,25 @@ void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha);
 // Verifica se ainda existe ao menos uma jogada valida e realiza a jogada
 void jogada(Tabuleiro6x7 *jogo, Ficha ficha);
 
+// Seleciona um tipo de ficha para ser criada
 Ficha SelecionarFicha(jogador *player);
 
+// Preenche os campos de dados de uma variavel jogador
 void CriarJogador(jogador *player, int precedencia);
 
+// Exibe os dados atuais de um jogador (nome, numero de fichas, turno...)
 void ExibirDadosDeJogador(jogador player);
 
+// Faz atualiza os dados do jogador e solicita uma jogada
 void IniciarTurnoDoJogador(jogador *player);
 
+//inicia um jogo jxj
 void PrincipalJxJ();
+
+// Verifica se ainda existe ao menos uma casa livre (examina apenas o topo de cada coluna)
+// Retorna 1 caso a tabela esteja lotada, 0 se existir ao menos 1 espaço livre
+int VerificarLotacao(Tabuleiro6x7 *jogo);
+
+// Pausa a execução do codigo por x segundos
+void esperar(int segundos);
 #endif

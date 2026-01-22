@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <windows.h>
 #include "utils.h"
 
 //gcc Lig4.c utils.c -o Lig4.exe
