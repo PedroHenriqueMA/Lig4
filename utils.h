@@ -36,6 +36,9 @@ void CarregarJogo(Tabuleiro6x7 jogo);
 // Gera uma nova matriz 6x7 nula com "MontarTabuleiro" e depois imprime na tela com "CarregarJogo"
 Tabuleiro6x7 MontarJogo();
 
+// Verifica se a peça gera condição de vitória
+void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col);
+
 // Aplica gravidade em uma coluna, movendo as fichas para baixo
 void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col);
 
@@ -51,8 +54,8 @@ void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha);
 // Verifica se a coluna selecionada é valida antes de posicionar a ficha
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha);
 
-// Verifica se ainda existe ao menos uma jogada valida e realiza a jogada
-void jogada(Tabuleiro6x7 *jogo, Ficha ficha);
+// Verifica se ainda existe ao menos uma jogada valida
+int existeJogadaValida(Tabuleiro6x7 *jogo);
 
 Ficha SelecionarFicha(jogador *player);
 

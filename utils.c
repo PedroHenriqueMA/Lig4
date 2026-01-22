@@ -13,6 +13,7 @@ void LimparTerminal() {
 
 const int linhas = 6;
 const int colunas = 7;
+int jogoContinua = 1; /* Controle do while */
 
 Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
     Tabuleiro6x7 tab;
@@ -29,7 +30,6 @@ Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
 }
 
 void CarregarJogo(Tabuleiro6x7 jogo){
-    LimparTerminal();
     for(int li = 0; li < (linhas+1); li++){
         for(int col = 0; col < colunas; col++){
             if(li<linhas){
@@ -58,8 +58,33 @@ void CarregarJogo(Tabuleiro6x7 jogo){
     }
 }
 
+void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
+    /* verificação pra baixo */
+    int countSequence = 1;
+    for(int i = row + 1; i < linhas ; i++){
+        Casa casa = jogo->tabuleiro[i][col];
+        if(strcmp(casa.ficha.dono, ficha.dono) == 0){ 
+            countSequence++;
+                /* Vitória */
+                if(countSequence == 4){
+                    LimparTerminal();
+                    printf("\n======%s Ganhou!!======\n", ficha.dono);
+                    CarregarJogo(*jogo);
+                    jogoContinua = 0;
+                    /* Verificar se é candidato a entrar no Hall da fama */
+                    break;
+                }
+        }else{
+            countSequence = 1;
+            break;
+        }
+    }
+
+    /* Verificar nos outros sentidos */
+}
+
 void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
-    Ficha fichas[linhas];
+    Ficha fichas[6];
     int count = 0;
     for(int row = linhas - 1; row >= 0; row--){
         if(!jogo->tabuleiro[row][col].vazio){
@@ -73,7 +98,11 @@ void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
 
     for(int i = 0; i < count; i++){
         preencherCasa(jogo, linhas - 1 - i, col, fichas[i]);
-    }
+    }    
+
+    int rowUltimaFicha = linhas - count;
+    Ficha UltimaFichaDaColuna = jogo->tabuleiro[rowUltimaFicha][col].ficha;
+    verificaVitoria(jogo, UltimaFichaDaColuna, rowUltimaFicha, col);
 
     for(int j = 0; j < count; j++){
         /*aplicar teste de condição de vitoria a cada ficha - futuramente*/
@@ -94,7 +123,6 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
     preencherCasa(jogo, 0, col, ficha);
     aplicarGravidadeColuna(jogo, col);
-    CarregarJogo(*jogo);
 }
 
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
@@ -117,20 +145,15 @@ void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
     }
 }
 
-void jogada(Tabuleiro6x7 *jogo, Ficha ficha){
-    int canPlay = 0;
+int existeJogadaValida(Tabuleiro6x7 *jogo){
     for(int col = 0; col < colunas; col++){
         if(jogo->tabuleiro[0][col].vazio){
-            canPlay = 1;
-            break;
+            return 1;
         }
     }
-    if(!canPlay){
-        printf("Tabuleiro cheio! Jogo empatado.\n");
-        return;
-    }
-
-    verificarJogada(jogo, ficha);
+    printf("Tabuleiro cheio! Jogo empatado.\n");
+    jogoContinua = 0;
+    return 0;
 }
 
 Tabuleiro6x7 MontarJogo(){
@@ -151,12 +174,14 @@ void CriarJogador(jogador *player, int precedencia){
 }
 
 void ExibirDadosDeJogador(jogador player){
+    printf("-------------------\n");
     printf("Jogador 1: %s\n", player.nome);
     printf("turno: %d\n", player.turno);
+    printf("\n");
     printf("QTD fichas normais(1): %d\n", player.QtdFichaNormal);
     printf("QTD fichas explosivas(2): %d\n", player.QtdFichaExplosiva);
     printf("QTD fichas portal(3): %d\n", player.QtdFichaPortal);
-
+    printf("\n");
 }
 
 void IniciarTurnoDoJogador(jogador *player){
@@ -168,7 +193,7 @@ void IniciarTurnoDoJogador(jogador *player){
 }
 
 Ficha SelecionarFicha(jogador *player){
-    int f=0;
+    int fichaEscolhida = 0;
     char nome[20];
     if(player->precedencia == 1)
         strcpy(nome, "jog1");
@@ -178,9 +203,9 @@ Ficha SelecionarFicha(jogador *player){
     printf("escolha um tipo de ficha: ");
 
     while(1){
-        scanf("%d",&f);
+        scanf("%d",&fichaEscolhida);
 
-        if(f == 1){
+        if(fichaEscolhida == 1){
             if(player->QtdFichaNormal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
@@ -192,7 +217,7 @@ Ficha SelecionarFicha(jogador *player){
             return ficha;
         }
 
-        if(f == 2){
+        if(fichaEscolhida == 2){
             if(player->QtdFichaExplosiva == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
@@ -204,7 +229,7 @@ Ficha SelecionarFicha(jogador *player){
             return ficha;
         }
 
-        if(f == 3){
+        if(fichaEscolhida == 3){
             if(player->QtdFichaPortal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
@@ -234,21 +259,27 @@ void PrincipalJxJ(){
 
     Tabuleiro6x7 jogo = MontarJogo();
 
-    while(1){
+    jogoContinua = 1;
+    while(jogoContinua){
         TurnoGlobal++;
+        LimparTerminal();
         CarregarJogo(jogo);
 
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&jogador2);
             ExibirDadosDeJogador(jogador2);
-            Ficha Ficha = SelecionarFicha(&jogador2);
-            jogada(&jogo, Ficha);
+            if(existeJogadaValida(&jogo)){
+                Ficha Ficha = SelecionarFicha(&jogador2);
+                verificarJogada(&jogo, Ficha);
+            }
         }
         else{
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
-            Ficha Ficha = SelecionarFicha(&jogador1);
-            jogada(&jogo, Ficha);
+            if(existeJogadaValida(&jogo)){
+                Ficha Ficha = SelecionarFicha(&jogador1);
+                verificarJogada(&jogo, Ficha);
+            }
         }
     }
 }
