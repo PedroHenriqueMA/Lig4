@@ -56,3 +56,6 @@ dkms.conf
 
 # vscode
 .vscode/
+
+#local files
+hall_da_fama

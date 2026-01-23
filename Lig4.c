@@ -14,7 +14,7 @@ int main(){
         
         printf("=======================================\n");
         printf("Lig4\n");
-        printf("Opçoes:\n");
+        printf("Selecione:\n");
         printf("1 - jogar\n");
         printf("2 - hall da fama\n");
         printf("3 - sair\n\n");
@@ -30,7 +30,8 @@ int main(){
             PrincipalJxJ();
             break;
         case 2:
-            continue;
+            HallDaFama();
+            break;
         default:
             break;
         }

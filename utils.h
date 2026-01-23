@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-// Declaração da função para limpar o terminal
+// Função para limpar o terminal
 void LimparTerminal();
 
 typedef struct{
@@ -12,6 +12,11 @@ typedef struct{
     int QtdFichaPortal;
     int precedencia;
 } jogador;
+
+typedef struct {
+    char nome[20];
+    int pontuacao;
+} jogadorHall;
 
 typedef struct{
     char dono[20];
@@ -66,4 +71,18 @@ void ExibirDadosDeJogador(jogador player);
 void IniciarTurnoDoJogador(jogador *player);
 
 void PrincipalJxJ();
+
+// Garante a existência do arquivo hall_da_fama
+void inicializarHallDaFama();
+
+// Limpa tudo que estiver escrito no arquivo hall_da_fama
+void limparHallDaFama();
+
+// Busca os jogadores no arquivo e realiza a comparação com o jogador passado
+void adicionarAoHall(jogadorHall jogador);
+
+// Mostra no terminal os jogadores dentro do arquivo
+void exibirHallDaFama();
+
+void HallDaFama();
 #endif

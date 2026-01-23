@@ -283,3 +283,106 @@ void PrincipalJxJ(){
         }
     }
 }
+
+void inicializarHallDaFama(){
+    FILE *fp = fopen("hall_da_fama", "r");
+    if(fp == NULL){
+        FILE * createfp = fopen("hall_da_fama", "w");
+        if(createfp == NULL){
+            printf("Erro: Falha ao criar arquivo Hall da Fama!");
+            return;
+        }
+        close(createfp);
+        return;
+    }
+    fclose(fp);
+}
+
+void limparHallDaFama(){
+    FILE *fp = fopen("hall_da_fama", "w");
+    if(fp == NULL){
+        printf("Erro: Falha ao limpar arquivo!");
+        return;
+    }
+    fclose(fp);
+}
+
+void adicionarAoHall(jogadorHall jogador){
+    if(jogador.pontuacao < 4){
+        printf("Erro: Jogador nao pode entrar no hall com pontuacao < 4!\n");
+        return;   
+    }
+
+    FILE *fp = fopen("hall_da_fama", "rb+");
+    if(fp == NULL){
+        printf("Erro: Falha ao procurar arquivo!");
+        return;
+    }
+    
+    jogadorHall jogadores[4];
+    memset(jogadores, 0, sizeof(jogadores));
+
+    int total = 0;
+    while(fread(&jogadores[total], sizeof(jogadorHall), 1, fp) == 1){
+        total++;
+    }
+    
+    jogadores[total] = jogador;
+    total++;
+
+    /* Bubble sort, dá pra mudar depois, mas nesse caso como n=4 O(n^2) n chega a ser problema */
+    for(int i = 0; i < total; i++){
+        for(int j = 0; j < total; j++){
+            if(jogadores[j].pontuacao > jogadores[i].pontuacao){
+                jogadorHall temp = jogadores[i];
+                jogadores[i] = jogadores[j];
+                jogadores[j] = temp;
+            }
+        }
+    }
+
+    /* volta ao início do arquivo */
+    rewind(fp);
+
+    /* sobrescreve com os novos dados */
+    fwrite(jogadores, sizeof(jogadorHall), total > 3 ? 3: total , fp);
+
+    fclose(fp);
+}
+
+void exibirHallDaFama(){
+    FILE *fp = fopen("hall_da_fama", "rb");
+    if(fp == NULL){
+        printf("Erro: Falha ao procurar arquivo!");
+        return;
+    }
+    
+    jogadorHall jogador;
+    int count = 0;
+    while(fread(&jogador, sizeof(jogadorHall), 1, fp) == 1) {
+        count++;
+        printf("------------\n");
+        printf("-> %i lugar \n", count);
+        printf("Nome do jogador: %s\n", jogador.nome);
+        printf("Pontuacao: %i\n", jogador.pontuacao);
+        printf("------------\n");
+    }
+    if(count == 0){
+        printf("=================\n");
+        printf("Nao ha vitoriosos\n");
+        printf("=================\n");
+    }
+    char c;
+    printf("Digite algo para sair:");
+    getchar();
+    scanf("%c", &c);
+
+    LimparTerminal();
+
+    fclose(fp);
+}
+
+void HallDaFama(){
+    inicializarHallDaFama();
+    exibirHallDaFama();
+}
