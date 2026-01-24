@@ -66,7 +66,7 @@ void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha);
 // Verifica se ainda existe ao menos uma jogada valida
 int existeJogadaValida(Tabuleiro6x7 *jogo);
 
-Ficha SelecionarFicha(jogador player);
+Ficha SelecionarFicha(jogador *player);
 
 void CriarJogador(jogador *player, int precedencia);
 
@@ -89,4 +89,10 @@ void adicionarAoHall(jogadorHall jogador);
 void exibirHallDaFama();
 
 void HallDaFama();
+
+void BotJogada(Tabuleiro6x7 *jogo, jogador *bot);
+
+Ficha BotSelecionarFicha(jogador *bot);
+
+void Lig4();
 #endif

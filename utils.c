@@ -1,11 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
 #ifdef _WIN32
     #include <windows.h>
 #else
     #include <unistd.h> 
 #endif
+
 #include "utils.h"
 
 void esperar(int milisegundos){
@@ -219,6 +222,19 @@ void CriarJogador(jogador *player, int precedencia){
 
 }
 
+void CriarBot(jogador *bot, int precedencia){
+    if(precedencia == 1)
+        strcpy(bot->nome, "bot1");
+    else
+        strcpy(bot->nome, "bot2");
+
+    bot->QtdFichaNormal = 21;
+    bot->QtdFichaExplosiva = 0;
+    bot->QtdFichaPortal = 0;
+    bot->turno = 0;
+    bot->precedencia = precedencia;
+}
+
 void ExibirDadosDeJogador(jogador player){
     printf("-------------------\n");
     printf("Jogador %d: %s\n",player.precedencia, player.nome);
@@ -238,9 +254,9 @@ void IniciarTurnoDoJogador(jogador *player){
     }
 }
 
-Ficha SelecionarFicha(jogador player){
+Ficha SelecionarFicha(jogador *player){
     int fichaEscolhida = 0;
-    Ficha ficha = {player, "nulo"};
+    Ficha ficha = {*player, "nulo"};
     
     printf("escolha um tipo de ficha: ");
 
@@ -248,31 +264,31 @@ Ficha SelecionarFicha(jogador player){
         scanf("%d",&fichaEscolhida);
 
         if(fichaEscolhida == 1){
-            if((&player)->QtdFichaNormal == 0){
+            if(player->QtdFichaNormal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
-            (&player)->QtdFichaNormal--;
+            player->QtdFichaNormal--;
             strcpy(ficha.tipo, "normal");
             return ficha;
         }
 
         if(fichaEscolhida == 2){
-            if((&player)->QtdFichaExplosiva == 0){
+            if(player->QtdFichaExplosiva == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
-            (&player)->QtdFichaExplosiva--;
+            player->QtdFichaExplosiva--;
             strcpy(ficha.tipo, "explo");
             return ficha;
         }
 
         if(fichaEscolhida == 3){
-            if((&player)->QtdFichaPortal == 0){
+            if(player->QtdFichaPortal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
-            (&player)->QtdFichaPortal--;
+            player->QtdFichaPortal--;
             strcpy(ficha.tipo, "port");
             return ficha;
         }
@@ -281,6 +297,41 @@ Ficha SelecionarFicha(jogador player){
             printf("Valor invalido, digite um novo valor: ");
         }
     }
+}
+
+Ficha BotSelecionarFicha(jogador *bot){
+    Ficha ficha = {*bot,"nulo"};
+
+    int fichaEscolhida = 1; 
+
+    if(bot->QtdFichaExplosiva != 0 || bot->QtdFichaPortal != 0){ 
+        fichaEscolhida = rand()%2 + 1;
+
+        if(fichaEscolhida == 2 && bot->QtdFichaExplosiva == 0){ 
+            if(bot->QtdFichaNormal < 0) fichaEscolhida = 1;
+            else fichaEscolhida = 3;
+        }
+        else if(fichaEscolhida == 3 && bot->QtdFichaPortal == 0){
+            if(bot->QtdFichaNormal < 0) fichaEscolhida = 1;
+            else fichaEscolhida = 2;
+        }
+    }
+
+    switch(fichaEscolhida){
+        case 1:
+            bot->QtdFichaNormal--; 
+            strcpy(ficha.tipo, "normal");
+            break;
+        case 2:
+            bot->QtdFichaExplosiva--;
+            strcpy(ficha.tipo, "explo");
+            break;
+        case 3:
+            bot->QtdFichaPortal--;
+            strcpy(ficha.tipo, "port");
+            break;
+    }
+    return ficha;
 }
 
 void PrincipalJxJ(){
@@ -305,7 +356,7 @@ void PrincipalJxJ(){
             IniciarTurnoDoJogador(&jogador2);
             ExibirDadosDeJogador(jogador2);
             if(existeJogadaValida(&jogo)){
-                Ficha Ficha = SelecionarFicha(jogador2);
+                Ficha Ficha = SelecionarFicha(&jogador2);
                 verificarJogada(&jogo, Ficha);
             }
         }
@@ -313,8 +364,116 @@ void PrincipalJxJ(){
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
             if(existeJogadaValida(&jogo)){
-                Ficha Ficha = SelecionarFicha(jogador1);
+                Ficha Ficha = SelecionarFicha(&jogador1);
                 verificarJogada(&jogo, Ficha);
+            }
+        }
+    }
+}
+
+void BotJogada(Tabuleiro6x7 *jogo, jogador *bot){
+    Ficha ficha = BotSelecionarFicha(bot);
+    
+    int col;
+    int tentativas = 0;
+    
+    // Tenta achar uma coluna aleatória válida
+    while(1){
+        col = rand() % colunas; // Gera 0 a 6
+        
+        // Verifica se a coluna não está cheia (linha 0 vazia)
+        if(jogo->tabuleiro[0][col].vazio){
+            posicionarFicha(jogo, col, ficha); 
+            break;
+        }
+        
+        // Safety break: se o tabuleiro estiver quase cheio, evita loop infinito
+        tentativas++;
+        if(tentativas > 20) {
+            // Se falhar muito no aleatório, procura a primeira livre (fallback)
+            for(int i = 0; i < colunas; i++){
+                 if(jogo->tabuleiro[0][i].vazio){
+                    posicionarFicha(jogo, i, ficha);
+                    return;
+                 }
+            }
+        }
+    }
+
+
+
+}
+
+void principalJxBot(){
+    int TurnoGlobal = 0;
+    jogador jogador1;
+
+    printf("nome do jogador 1: ");
+    CriarJogador(&jogador1,1);
+
+    jogador Jogador2Bot;
+    CriarBot(&Jogador2Bot, 2);
+
+    Tabuleiro6x7 jogo = MontarJogo();
+
+    jogoContinua = 1;
+    while(jogoContinua){
+        TurnoGlobal++;
+        LimparTerminal();
+        CarregarJogo(jogo);
+
+        if(TurnoGlobal%2 == 0){
+            IniciarTurnoDoJogador(&Jogador2Bot);
+            ExibirDadosDeJogador(Jogador2Bot);
+            if(existeJogadaValida(&jogo)){
+                BotJogada(&jogo, &Jogador2Bot);
+            }
+        }
+        else{
+            IniciarTurnoDoJogador(&jogador1);
+            ExibirDadosDeJogador(jogador1);
+            if(existeJogadaValida(&jogo)){
+                Ficha Ficha = SelecionarFicha(&jogador1);
+                verificarJogada(&jogo, Ficha);
+            }
+        }
+    }
+}
+
+void principalBotxBot(){
+    int TurnoGlobal = 0;
+    jogador jogador1Bot;
+    CriarBot(&jogador1Bot, 1);
+
+    jogador Jogador2Bot;
+    CriarBot(&Jogador2Bot, 2);
+
+    Tabuleiro6x7 jogo = MontarJogo();
+
+    jogoContinua = 1;
+    while(jogoContinua){
+        TurnoGlobal++;
+        LimparTerminal();
+        CarregarJogo(jogo);
+        esperar(2000);
+
+
+        if(TurnoGlobal%2 == 0){
+            IniciarTurnoDoJogador(&Jogador2Bot);
+            ExibirDadosDeJogador(Jogador2Bot);
+            esperar(2000);
+
+            if(existeJogadaValida(&jogo)){
+                BotJogada(&jogo, &Jogador2Bot);
+            }
+        }
+        else{
+            IniciarTurnoDoJogador(&jogador1Bot);
+            ExibirDadosDeJogador(jogador1Bot);
+            esperar(2000);
+
+            if(existeJogadaValida(&jogo)){
+                BotJogada(&jogo, &jogador1Bot);
             }
         }
     }
@@ -421,4 +580,48 @@ void exibirHallDaFama(){
 void HallDaFama(){
     inicializarHallDaFama();
     exibirHallDaFama();
+}
+
+void Lig4(){
+    int escolha;
+    LimparTerminal();
+
+    while(1){
+
+        printf("\n\n==========================\n\n");
+        printf("modos de jogo:\n\n");
+        printf("1 - jogador x jogador\n");
+        printf("2 - jogador x maquina\n");
+        printf("3 - maquina x maquina\n\n");
+
+        printf("digite 0 para volta.\n");
+        
+        printf("esolha: ");
+        scanf("%d", &escolha);
+        
+
+        switch(escolha){
+            case 0:
+                return;
+            case 1:
+                LimparTerminal();
+                PrincipalJxJ();
+                continue;
+                break;
+            case 2:
+                srand(time(0));
+                LimparTerminal();
+                principalJxBot();
+                continue;
+                break;
+            case 3:
+                srand(time(0));
+                LimparTerminal();
+                principalBotxBot();
+                continue;
+                break;
+            default:
+                continue;
+        }
+    }
 }
