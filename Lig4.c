@@ -27,7 +27,7 @@ int main(){
 
         switch(escolha){
         case 1:
-            PrincipalJxJ();
+            Lig4();
             break;
         case 2:
             HallDaFama();
