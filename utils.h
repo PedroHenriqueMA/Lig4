@@ -4,6 +4,8 @@
 // Função para limpar o terminal
 void LimparTerminal();
 
+void esperar(int milisegundos);
+
 typedef struct{
     char nome[20];
     int turno;
@@ -14,12 +16,12 @@ typedef struct{
 } jogador;
 
 typedef struct {
-    char nome[20];
+    char nome[30];
     int pontuacao;
 } jogadorHall;
 
 typedef struct{
-    char dono[20];
+    jogador dono;
     char tipo[20];
 } Ficha;
 
@@ -56,13 +58,15 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha);
 // Posiciona uma ficha na possição livre mais baixa de uma coluna
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha);
 
+void animarQueda(Tabuleiro6x7 *jogo, int col, int linhaFinal, Ficha ficha);
+
 // Verifica se a coluna selecionada é valida antes de posicionar a ficha
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha);
 
 // Verifica se ainda existe ao menos uma jogada valida
 int existeJogadaValida(Tabuleiro6x7 *jogo);
 
-Ficha SelecionarFicha(jogador *player);
+Ficha SelecionarFicha(jogador player);
 
 void CriarJogador(jogador *player, int precedencia);
 

@@ -1,14 +1,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <unistd.h> 
+#endif
 #include "utils.h"
 
+void esperar(int milisegundos){
+    #ifdef _WIN32
+        Sleep(milisegundos);
+    #else
+        usleep(milisegundos * 1000);
+    #endif
+}
+
 void LimparTerminal() {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
 }
 
 const int linhas = 6;
@@ -17,7 +30,7 @@ int jogoContinua = 1; /* Controle do while */
 
 Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
     Tabuleiro6x7 tab;
-    Ficha nula = {"nula","nulo"};
+    Ficha nula = {{0},"nulo"};
 
     for(int i = 0; i < linhas; i++){
         for(int j = 0; j < colunas; j++){
@@ -30,26 +43,32 @@ Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
 }
 
 void CarregarJogo(Tabuleiro6x7 jogo){
+    printf("\n\n\n");
     for(int li = 0; li < (linhas+1); li++){
         for(int col = 0; col < colunas; col++){
             if(li<linhas){
                 Casa casa = jogo.tabuleiro[li][col];
                 if(casa.vazio)
                     printf(" . ");
-                else if (strcmp(casa.ficha.dono, "jog1") == 0) {
+
+                else if(casa.ficha.dono.precedencia == 1){
                     printf("\033[34m X \033[0m");
-                } else if (strcmp(casa.ficha.dono, "jog2") == 0) {
+                } 
+
+                else if(casa.ficha.dono.precedencia == 2){
                     printf("\033[31m O \033[0m");
-                } else if (strcmp(casa.ficha.dono, "nulo") == 0) {
-                    printf(" . ");
-                } else {
+                }
+
+                else{
                     printf(" ? ");
                 }
             }
             else{
                 if(jogo.tabuleiro[0][col].vazio == 0){
                     printf("\033[31m %d \033[0m", col + 1);
-                } else {
+                }
+
+                else{
                     printf(" %d ", col + 1);
                 }
             }
@@ -63,14 +82,17 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     int countSequence = 1;
     for(int i = row + 1; i < linhas ; i++){
         Casa casa = jogo->tabuleiro[i][col];
-        if(strcmp(casa.ficha.dono, ficha.dono) == 0){ 
+        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){ 
             countSequence++;
                 /* Vitória */
                 if(countSequence == 4){
                     LimparTerminal();
-                    printf("\n======%s Ganhou!!======\n", ficha.dono);
+                    printf("\n======%s Ganhou!!======\n",ficha.dono.nome);
                     CarregarJogo(*jogo);
                     jogoContinua = 0;
+                    jogadorHall vencedor = {"",ficha.dono.turno};
+                    strcpy(vencedor.nome, ficha.dono.nome);
+                    adicionarAoHall(vencedor);
                     /* Verificar se é candidato a entrar no Hall da fama */
                     break;
                 }
@@ -97,20 +119,15 @@ void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
     }
 
     for(int i = 0; i < count; i++){
-        preencherCasa(jogo, linhas - 1 - i, col, fichas[i]);
-    }    
+        int rowAtual = linhas - 1 - i;
+        preencherCasa(jogo, rowAtual, col, fichas[i]);
+        verificaVitoria(jogo, fichas[i], rowAtual, col);
 
-    int rowUltimaFicha = linhas - count;
-    Ficha UltimaFichaDaColuna = jogo->tabuleiro[rowUltimaFicha][col].ficha;
-    verificaVitoria(jogo, UltimaFichaDaColuna, rowUltimaFicha, col);
-
-    for(int j = 0; j < count; j++){
-        /*aplicar teste de condição de vitoria a cada ficha - futuramente*/
     }
 }
 
 void limparCasa(Tabuleiro6x7 *jogo, int row, int col){
-    Ficha nula = {"nula","nulo"};
+    Ficha nula = {{0} ,"nulo"};
     jogo->tabuleiro[row][col].ficha = nula;
     jogo->tabuleiro[row][col].vazio = 1;
 }
@@ -120,8 +137,37 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
     jogo->tabuleiro[row][col].vazio = 0;
 }
 
+void animarQueda(Tabuleiro6x7 *jogo, int col, int linhaFinal, Ficha ficha) {
+    Ficha fichaAnimacao = ficha;
+    
+    for (int row = 0; row < linhaFinal; row++) {
+        preencherCasa(jogo, row, col, fichaAnimacao);
+        LimparTerminal();
+        CarregarJogo(*jogo); 
+        esperar(100);
+
+        limparCasa(jogo, row, col);
+    }
+}
+
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
-    preencherCasa(jogo, 0, col, ficha);
+    int linhaDestino = -1;
+    
+    for(int i = linhas - 1; i >= 0; i--) {
+        if(jogo->tabuleiro[i][col].vazio) {
+            linhaDestino = i;
+            break;
+        }
+    }
+
+    if (linhaDestino != -1) {
+        animarQueda(jogo, col, linhaDestino, ficha);
+
+        preencherCasa(jogo, linhaDestino, col, ficha);
+        
+        LimparTerminal();
+        CarregarJogo(*jogo);
+    }
     aplicarGravidadeColuna(jogo, col);
 }
 
@@ -175,7 +221,7 @@ void CriarJogador(jogador *player, int precedencia){
 
 void ExibirDadosDeJogador(jogador player){
     printf("-------------------\n");
-    printf("Jogador 1: %s\n", player.nome);
+    printf("Jogador %d: %s\n",player.precedencia, player.nome);
     printf("turno: %d\n", player.turno);
     printf("\n");
     printf("QTD fichas normais(1): %d\n", player.QtdFichaNormal);
@@ -192,51 +238,41 @@ void IniciarTurnoDoJogador(jogador *player){
     }
 }
 
-Ficha SelecionarFicha(jogador *player){
+Ficha SelecionarFicha(jogador player){
     int fichaEscolhida = 0;
-    char nome[20];
-    if(player->precedencia == 1)
-        strcpy(nome, "jog1");
-    else
-        strcpy(nome, "jog2");
-
+    Ficha ficha = {player, "nulo"};
+    
     printf("escolha um tipo de ficha: ");
 
     while(1){
         scanf("%d",&fichaEscolhida);
 
         if(fichaEscolhida == 1){
-            if(player->QtdFichaNormal == 0){
+            if((&player)->QtdFichaNormal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
-            player->QtdFichaNormal--;
-            Ficha ficha;
-            strcpy(ficha.dono, nome);
+            (&player)->QtdFichaNormal--;
             strcpy(ficha.tipo, "normal");
             return ficha;
         }
 
         if(fichaEscolhida == 2){
-            if(player->QtdFichaExplosiva == 0){
+            if((&player)->QtdFichaExplosiva == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
-            player->QtdFichaExplosiva--;
-            Ficha ficha;
-            strcpy(ficha.dono, nome);
+            (&player)->QtdFichaExplosiva--;
             strcpy(ficha.tipo, "explo");
             return ficha;
         }
 
         if(fichaEscolhida == 3){
-            if(player->QtdFichaPortal == 0){
+            if((&player)->QtdFichaPortal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
-            player->QtdFichaPortal--;
-            Ficha ficha;
-            strcpy(ficha.dono, nome);
+            (&player)->QtdFichaPortal--;
             strcpy(ficha.tipo, "port");
             return ficha;
         }
@@ -269,7 +305,7 @@ void PrincipalJxJ(){
             IniciarTurnoDoJogador(&jogador2);
             ExibirDadosDeJogador(jogador2);
             if(existeJogadaValida(&jogo)){
-                Ficha Ficha = SelecionarFicha(&jogador2);
+                Ficha Ficha = SelecionarFicha(jogador2);
                 verificarJogada(&jogo, Ficha);
             }
         }
@@ -277,7 +313,7 @@ void PrincipalJxJ(){
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
             if(existeJogadaValida(&jogo)){
-                Ficha Ficha = SelecionarFicha(&jogador1);
+                Ficha Ficha = SelecionarFicha(jogador1);
                 verificarJogada(&jogo, Ficha);
             }
         }
@@ -292,7 +328,7 @@ void inicializarHallDaFama(){
             printf("Erro: Falha ao criar arquivo Hall da Fama!");
             return;
         }
-        close(createfp);
+        fclose(createfp);
         return;
     }
     fclose(fp);
