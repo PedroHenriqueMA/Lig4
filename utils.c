@@ -77,6 +77,18 @@ void CarregarJogo(Tabuleiro6x7 jogo){
     }
 }
 
+void vitoria(Tabuleiro6x7 *jogo, jogador vencedor){
+    jogoContinua = 0;
+
+    jogadorHall vencedorHall = {"", vencedor.turno};
+    strcpy(vencedorHall.nome, vencedor.nome);
+
+    LimparTerminal();
+    printf("\n======%s Ganhou!!======\n", vencedor.nome);
+    CarregarJogo(*jogo);
+    adicionarAoHall(vencedorHall);
+}
+
 void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* verificação pra baixo */
     int countSequence = 1;
@@ -84,25 +96,119 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
         Casa casa = jogo->tabuleiro[i][col];
         if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){ 
             countSequence++;
-                /* Vitória */
                 if(countSequence == 4){
-                    LimparTerminal();
-                    printf("\n======%s Ganhou!!======\n",ficha.dono.nome);
-                    CarregarJogo(*jogo);
-                    jogoContinua = 0;
-                    jogadorHall vencedor = {"",ficha.dono.turno};
-                    strcpy(vencedor.nome, ficha.dono.nome);
-                    adicionarAoHall(vencedor);
-                    /* Verificar se é candidato a entrar no Hall da fama */
+                    vitoria(jogo, ficha.dono);
                     break;
                 }
         }else{
-            countSequence = 1;
             break;
         }
     }
 
-    /* Verificar nos outros sentidos */
+    /* Lateral */
+    countSequence = 1;
+    /* Verificação a direita */
+    for(int j = col + 1; j <= colunas; j++){
+        Casa casa = jogo->tabuleiro[row][j];
+        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){ 
+            countSequence++;
+            if(countSequence == 4){
+                vitoria(jogo, ficha.dono);
+                break;
+            }
+        }else{
+            break;
+        }
+    }
+    /* Verificação a esquerda */
+    for(int j = col -1; j >= 0; j--){
+        Casa casa = jogo->tabuleiro[row][j];
+        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){ 
+            countSequence++;
+            if(countSequence == 4){
+                vitoria(jogo, ficha.dono);
+                break;
+            }
+        }else{
+            break;
+        }
+    }
+
+
+    /* Diagonal coordenadas iguais */
+    countSequence = 1; 
+    /* Verificação (+,+)*/
+    int i = row + 1;
+    int j = col + 1;
+    while( i < linhas && j < colunas){
+        Casa casa = jogo->tabuleiro[i][j];
+        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+            countSequence++;
+            if(countSequence == 4){
+                vitoria(jogo, ficha.dono);
+                break;
+            }
+        }else{
+            break;
+        }
+        i++;
+        j++;
+    }
+
+    /* Verificação (-,-) */
+    i = row - 1;
+    j = col - 1;
+    while(i >= 0 && j >= 0 ){
+        Casa casa = jogo->tabuleiro[i][j];
+        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+            countSequence++;
+            if(countSequence == 4){
+                vitoria(jogo, ficha.dono);
+                break;
+            }
+        }else{
+            break;
+        }
+        i--;
+        j--;
+    }
+    
+    /* Diagonal coordenadas opostas */
+    countSequence = 1;
+    /* Verificação (+,-) */
+    i = row + 1;
+    j = col - 1;
+    while(i < linhas && j >= 0){
+        Casa casa = jogo->tabuleiro[i][j];
+        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+            countSequence++;
+            if(countSequence == 4){
+                vitoria(jogo, ficha.dono);
+                break;
+            }
+        }else{
+            break;
+        }
+        i++;
+        j--;
+    }
+    /* Verificação (-,+) */
+    i = row - 1;
+    j = col + 1;
+    while(i >= 0 && j < colunas){
+        Casa casa = jogo->tabuleiro[i][j];
+        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+            countSequence++;
+            if(countSequence == 4){
+                vitoria(jogo, ficha.dono);
+                break;
+            }
+        }else{
+            break;
+        }
+        i--;
+        j++;
+    }
 }
 
 void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){

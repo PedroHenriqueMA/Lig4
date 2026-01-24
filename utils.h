@@ -43,6 +43,9 @@ void CarregarJogo(Tabuleiro6x7 jogo);
 // Gera uma nova matriz 6x7 nula com "MontarTabuleiro" e depois imprime na tela com "CarregarJogo"
 Tabuleiro6x7 MontarJogo();
 
+// Finaliza o jogo, exibe vencedor e adiciona ao hall da fama
+void vitoria(Tabuleiro6x7 *jogo, jogador vencedor);
+
 // Verifica se a peça gera condição de vitória
 void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col);
 
