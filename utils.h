@@ -49,6 +49,9 @@ void vitoria(Tabuleiro6x7 *jogo, jogador vencedor);
 // Verifica se a peça gera condição de vitória
 void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col);
 
+// Aplica gravidade na ficha
+void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col)
+
 // Aplica gravidade em uma coluna, movendo as fichas para baixo
 void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col);
 
@@ -60,8 +63,6 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha);
 
 // Posiciona uma ficha na possição livre mais baixa de uma coluna
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha);
-
-void animarQueda(Tabuleiro6x7 *jogo, int col, int linhaFinal, Ficha ficha);
 
 // Verifica se a coluna selecionada é valida antes de posicionar a ficha
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha);

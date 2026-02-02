@@ -87,8 +87,8 @@ void vitoria(Tabuleiro6x7 *jogo, jogador vencedor){
     strcpy(vencedorHall.nome, vencedor.nome);
 
     LimparTerminal();
-    printf("\n======%s Ganhou!!======\n", vencedor.nome);
     CarregarJogo(*jogo);
+    printf("\n====== %s Ganhou!! ======\n", vencedor.nome);
     adicionarAoHall(vencedorHall);
 }
 
@@ -199,23 +199,24 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     }
 }
 
-void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
-    Ficha fichas[6];
-    int count = 0;
-    for(int row = linhas - 1; row >= 0; row--){
-        if(!jogo->tabuleiro[row][col].vazio){
-            fichas[count++] = jogo->tabuleiro[row][col].ficha;
+void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
+    Ficha ficha = jogo->tabuleiro[0][col].ficha;
+
+    for(int row = 0; row < (linhas-1); row++){
+        if(jogo->tabuleiro[row+1][col].vazio){
+            limparCasa(jogo,row,col);
+            preencherCasa(jogo,(row+1),col,ficha);
+            CarregarJogo(*jogo);
+            esperar(500);
+        }  
+        else{
+            verificaVitoria(jogo,ficha,row,col);
+            break;
         }
     }
+}
 
-    for(int row = 0; row < linhas; row++){
-        limparCasa(jogo, row, col);
-    }
 
-    for(int i = 0; i < count; i++){
-        int rowAtual = linhas - 1 - i;
-        preencherCasa(jogo, rowAtual, col, fichas[i]);
-        verificaVitoria(jogo, fichas[i], rowAtual, col);
 
     }
 }
@@ -231,38 +232,10 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
     jogo->tabuleiro[row][col].vazio = 0;
 }
 
-void animarQueda(Tabuleiro6x7 *jogo, int col, int linhaFinal, Ficha ficha) {
-    Ficha fichaAnimacao = ficha;
-    
-    for (int row = 0; row < linhaFinal; row++) {
-        preencherCasa(jogo, row, col, fichaAnimacao);
-        LimparTerminal();
-        CarregarJogo(*jogo); 
-        esperar(100);
-
-        limparCasa(jogo, row, col);
-    }
-}
 
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
-    int linhaDestino = -1;
-    
-    for(int i = linhas - 1; i >= 0; i--) {
-        if(jogo->tabuleiro[i][col].vazio) {
-            linhaDestino = i;
-            break;
-        }
-    }
-
-    if (linhaDestino != -1) {
-        animarQueda(jogo, col, linhaDestino, ficha);
-
-        preencherCasa(jogo, linhaDestino, col, ficha);
-        
-        LimparTerminal();
-        CarregarJogo(*jogo);
-    }
-    aplicarGravidadeColuna(jogo, col);
+    preencherCasa(jogo,0,col,ficha);
+    AplicarGravidadeFicha(jogo,col);
 }
 
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
