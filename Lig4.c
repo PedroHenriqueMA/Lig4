@@ -11,8 +11,6 @@ int main(){
     Tabuleiro6x7 jogo;
 
     do{
-        
-        printf("=======================================\n");
         printf("Lig4\n");
         printf("Selecione:\n");
         printf("1 - jogar\n");
@@ -22,7 +20,13 @@ int main(){
 
         printf("Digite sua escolha: ");
 
-        scanf("%d", &escolha);
+        if(scanf("%d", &escolha) == 0){
+            printf("\nDigite uma das alternativas!");
+            while (getchar() != '\n');
+            LimparTerminal();
+            continue;
+        }
+
         LimparTerminal();
 
         switch(escolha){

@@ -269,7 +269,11 @@ void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
     int col;
     while(1){
         printf("Escolha uma coluna (1-7): ");
-        scanf("%d", &col);
+        if(scanf("%d", &col) == 0){
+            printf("\nDigite uma das alternativas!\n");
+            while (getchar() != '\n');
+            continue;
+        }
         col--;
         if(col < 0 || col >= colunas){
             printf("Coluna invalida. Tente novamente.\n");
@@ -352,7 +356,11 @@ Ficha SelecionarFicha(jogador *player){
     printf("escolha um tipo de ficha: ");
 
     while(1){
-        scanf("%d",&fichaEscolhida);
+        if(scanf("%d", &fichaEscolhida) == 0){
+            printf("\nDigite uma das alternativas!\n");
+            while (getchar() != '\n');
+            continue;
+        }
 
         if(fichaEscolhida == 1){
             if(player->QtdFichaNormal == 0){
@@ -644,7 +652,6 @@ void exibirHallDaFama(){
     int count = 0;
     while(fread(&jogador, sizeof(jogadorHall), 1, fp) == 1) {
         count++;
-        printf("------------\n");
         printf("-> %i lugar \n", count);
         printf("Nome do jogador: %s\n", jogador.nome);
         printf("Pontuacao: %i\n", jogador.pontuacao);
@@ -671,12 +678,10 @@ void HallDaFama(){
 }
 
 void Lig4(){
-    int escolha;
+    int escolha = 0;
     LimparTerminal();
 
     while(1){
-
-        printf("\n\n==========================\n\n");
         printf("modos de jogo:\n\n");
         printf("1 - jogador x jogador\n");
         printf("2 - jogador x maquina\n");
@@ -685,11 +690,17 @@ void Lig4(){
         printf("digite 0 para volta.\n");
         
         printf("esolha: ");
-        scanf("%d", &escolha);
+        if(scanf("%d", &escolha) == 0){
+            LimparTerminal();
+            printf("\nDigite uma das alternativas!\n");
+            while (getchar() != '\n');
+            continue;
+        }
         
 
         switch(escolha){
             case 0:
+                LimparTerminal();
                 return;
             case 1:
                 LimparTerminal();
