@@ -29,7 +29,7 @@ void LimparTerminal() {
 
 const int linhas = 6;
 const int colunas = 7;
-int jogoContinua = 1; /* Controle do while */
+int jogoContinua = 1;
 
 Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
     Tabuleiro6x7 tab;
@@ -141,9 +141,7 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* Diagonal coordenadas iguais */
     countSequence = 1; 
     /* Verificação (+,+)*/
-    int i = row + 1;
-    int j = col + 1;
-    while( i < linhas && j < colunas){
+    for(int i = row + 1, j = col + 1; i < linhas && j < colunas; i++, j++){
         Casa casa = jogo->tabuleiro[i][j];
         if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
             countSequence++;
@@ -154,14 +152,10 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
         }else{
             break;
         }
-        i++;
-        j++;
     }
 
     /* Verificação (-,-) */
-    i = row - 1;
-    j = col - 1;
-    while(i >= 0 && j >= 0 ){
+    for(int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--){
         Casa casa = jogo->tabuleiro[i][j];
         if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
             countSequence++;
@@ -172,16 +166,12 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
         }else{
             break;
         }
-        i--;
-        j--;
     }
     
     /* Diagonal coordenadas opostas */
     countSequence = 1;
     /* Verificação (+,-) */
-    i = row + 1;
-    j = col - 1;
-    while(i < linhas && j >= 0){
+    for(int i = row + 1, j = col - 1; i < linhas && j >= 0; i++, j--){
         Casa casa = jogo->tabuleiro[i][j];
         if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
             countSequence++;
@@ -192,13 +182,10 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
         }else{
             break;
         }
-        i++;
-        j--;
     }
+
     /* Verificação (-,+) */
-    i = row - 1;
-    j = col + 1;
-    while(i >= 0 && j < colunas){
+    for(int i = row - 1, j = col + 1; i >= 0 && j < colunas; i--, j++){
         Casa casa = jogo->tabuleiro[i][j];
         if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
             countSequence++;
@@ -209,8 +196,6 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
         }else{
             break;
         }
-        i--;
-        j++;
     }
 }
 
@@ -505,9 +490,6 @@ void BotJogada(Tabuleiro6x7 *jogo, jogador *bot){
             }
         }
     }
-
-
-
 }
 
 void principalJxBot(){
