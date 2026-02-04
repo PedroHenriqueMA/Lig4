@@ -216,11 +216,6 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
     }
 }
 
-
-
-    }
-}
-
 void limparCasa(Tabuleiro6x7 *jogo, int row, int col){
     Ficha nula = {{0} ,"nulo"};
     jogo->tabuleiro[row][col].ficha = nula;
