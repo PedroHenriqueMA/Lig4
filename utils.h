@@ -50,7 +50,7 @@ void vitoria(Tabuleiro6x7 *jogo, jogador vencedor);
 void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col);
 
 // Aplica gravidade na ficha
-void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col)
+void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col);
 
 // Aplica gravidade em uma coluna, movendo as fichas para baixo
 void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col);
