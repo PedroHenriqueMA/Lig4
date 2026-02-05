@@ -10,6 +10,12 @@
     #include <unistd.h> 
 #endif
 
+// ====== Variaveis globais e flags
+const int linhas = 6;
+const int colunas = 7;
+int jogoContinua = 1;
+
+// ====== utilidades diversas
 
 void esperar(int milisegundos){
     #ifdef _WIN32
@@ -27,23 +33,7 @@ void LimparTerminal() {
     #endif
 }
 
-const int linhas = 6;
-const int colunas = 7;
-int jogoContinua = 1;
-
-Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
-    Tabuleiro6x7 tab;
-    Ficha nula = {{0},"nulo"};
-
-    for(int i = 0; i < linhas; i++){
-        for(int j = 0; j < colunas; j++){
-            tab.tabuleiro[i][j].ficha = nula;
-            tab.tabuleiro[i][j].vazio = 1;
-        }
-    }
-
-    return tab;
-}
+// ======= Exibição do jogo
 
 void ExibirJogo(Tabuleiro6x7 *jogo){
     printf("\n\n\n");
@@ -57,18 +47,18 @@ void ExibirJogo(Tabuleiro6x7 *jogo){
                 else if(casa.ficha.dono.precedencia == 1){
                     if(strcmp(casa.ficha.tipo,"normal") == 0)
                         printf("\033[34m X \033[0m");
-                    else if(strcmp(casa.ficha.tipo, "explo") == 0)
+                    else if(strcmp(casa.ficha.tipo, "explosiva") == 0)
                         printf("\033[34m @ \033[0m");
-                    else if(strcmp(casa.ficha.tipo, "port") == 0)
+                    else if(strcmp(casa.ficha.tipo, "portal") == 0)
                         printf("\033[34m + \033[0m");
                 } 
 
                 else if(casa.ficha.dono.precedencia == 2){
                     if(strcmp(casa.ficha.tipo,"normal") == 0)
                         printf("\033[31m O \033[0m");
-                    else if(strcmp(casa.ficha.tipo, "explo") == 0)
+                    else if(strcmp(casa.ficha.tipo, "explosiva") == 0)
                         printf("\033[31m @ \033[0m");
-                    else if(strcmp(casa.ficha.tipo, "port") == 0)
+                    else if(strcmp(casa.ficha.tipo, "portal") == 0)
                         printf("\033[31m + \033[0m");
                 }
 
@@ -89,6 +79,8 @@ void ExibirJogo(Tabuleiro6x7 *jogo){
         printf("\n");
     }
 }
+
+// ======= Verificação de vitória
 
 void vitoria(Tabuleiro6x7 *jogo, jogador vencedor){
     jogoContinua = 0;
@@ -209,6 +201,8 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     }
 }
 
+// ======= Gravidade
+
 void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
     Ficha ficha = jogo->tabuleiro[0][col].ficha; /*Pega a ficha que esta na primeira linha da coluna*/
     int finalRow = 0;
@@ -283,6 +277,8 @@ void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
     }
 }
 
+// ======= Logica de Jogadas
+
 void limparCasa(Tabuleiro6x7 *jogo, int row, int col){
     Ficha nula = {{0},"nulo"};
     jogo->tabuleiro[row][col].ficha = nula;
@@ -302,22 +298,28 @@ void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
     int col;
     while(1){
+        /*Tratamento de exceção, para garantir que a jogada é valida*/
         printf("Escolha uma coluna (1-7): ");
+
+        /*Entrada invalida*/
         if(scanf("%d", &col) == 0){
             printf("\nDigite uma das alternativas!\n");
             while (getchar() != '\n');
             continue;
         }
-        col--;
+        col--; /*redução para se adequar ao index do array (0-6)*/
+
+        /*Out of bounds*/
         if(col < 0 || col >= colunas){
             printf("Coluna invalida. Tente novamente.\n");
             continue;
         }
+        /*Coluna lotada*/
         if(jogo->tabuleiro[0][col].vazio == 0){
             printf("Coluna cheia. Escolha outra coluna.\n");
             continue;
         }
-        
+        /*Quando a jogada é valida, chama a função que realiza o posicionamento da ficha*/
         posicionarFicha(jogo, col, ficha);
         break;
     }
@@ -336,6 +338,23 @@ int existeJogadaValida(Tabuleiro6x7 *jogo){
     return 0;
 }
 
+// ======= Iniciar jogo
+
+Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
+    Tabuleiro6x7 tab;
+    Ficha nula = {{0},"nulo"};
+
+    /*Gera um tabuleiro de fichas nulas com todas as casas definidas como vazias*/
+    for(int i = 0; i < linhas; i++){
+        for(int j = 0; j < colunas; j++){
+            tab.tabuleiro[i][j].ficha = nula;
+            tab.tabuleiro[i][j].vazio = 1;
+        }
+    }
+
+    return tab;
+}
+
 Tabuleiro6x7 MontarJogo(){
     /*cria um novo tabuleiro, e o exibe no terminal*/
     Tabuleiro6x7 Tabuleiro = MontarTabuleiro(linhas,colunas);
@@ -344,27 +363,22 @@ Tabuleiro6x7 MontarJogo(){
     return Tabuleiro;
 }
 
+// ======= Jogadores
+
 void CriarJogador(jogador *player, int precedencia){
-    /*carrega os dados do jogador, solicita o nome ao usuario*/
+    /*atualiza os dados do jogador*/
+
+    /*solicita o nome ao usuario*/
     scanf("%s", player->nome);
+
+    /*Quantidade padrão de fichas iniciais*/
     player->QtdFichaNormal = 21;
     player->QtdFichaExplosiva = 0;
     player->QtdFichaPortal = 0;
+
+    /*Variaveis de turno e ordem de jogada*/
     player->turno = 0;
     player->precedencia = precedencia;
-}
-
-void CriarBot(jogador *bot, int precedencia){
-    if(precedencia == 1)
-        strcpy(bot->nome, "bot1");
-    else
-        strcpy(bot->nome, "bot2");
-
-    bot->QtdFichaNormal = 21;
-    bot->QtdFichaExplosiva = 0;
-    bot->QtdFichaPortal = 0;
-    bot->turno = 0;
-    bot->precedencia = precedencia;
 }
 
 void ExibirDadosDeJogador(jogador player){
@@ -373,8 +387,8 @@ void ExibirDadosDeJogador(jogador player){
     printf("turno: %d\n", player.turno);
     printf("\n");
     printf("QTD fichas normais(1): %d\n", player.QtdFichaNormal);
-    printf("QTD fichas explosivas(2): %d\n", player.QtdFichaExplosiva);
-    printf("QTD fichas portal(3): %d\n", player.QtdFichaPortal);
+    printf("QTD fichas explosivasivas(2): %d\n", player.QtdFichaExplosiva);
+    printf("QTD fichas portalal(3): %d\n", player.QtdFichaPortal);
     printf("\n");
 }
 
@@ -389,11 +403,13 @@ void IniciarTurnoDoJogador(jogador *player){
 }
 
 Ficha SelecionarFicha(jogador *player){
+    /*Gera uma ficha do tipo selecionada pelo jogador*/
     int fichaEscolhida = 0;
     Ficha ficha = {*player, "nulo"};
     
     printf("escolha um tipo de ficha: ");
 
+    /*Tratamento de exceção*/
     while(1){
         if(scanf("%d", &fichaEscolhida) == 0){
             printf("\nDigite uma das alternativas!\n");
@@ -401,6 +417,7 @@ Ficha SelecionarFicha(jogador *player){
             continue;
         }
 
+        /*Ficha normal*/
         if(fichaEscolhida == 1){
             if(player->QtdFichaNormal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
@@ -411,23 +428,25 @@ Ficha SelecionarFicha(jogador *player){
             return ficha;
         }
 
+        /*Ficha explosiva*/
         if(fichaEscolhida == 2){
             if(player->QtdFichaExplosiva == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
             player->QtdFichaExplosiva--;
-            strcpy(ficha.tipo, "explo");
+            strcpy(ficha.tipo, "explosiva");
             return ficha;
         }
 
+        /*Ficha portal*/
         if(fichaEscolhida == 3){
             if(player->QtdFichaPortal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
                 continue;
             }
             player->QtdFichaPortal--;
-            strcpy(ficha.tipo, "port");
+            strcpy(ficha.tipo, "portal");
             return ficha;
         }
 
@@ -435,6 +454,57 @@ Ficha SelecionarFicha(jogador *player){
             printf("Valor invalido, digite um novo valor: ");
         }
     }
+}
+
+// ======= Bots
+
+void BotJogada(Tabuleiro6x7 *jogo, jogador *bot){
+    Ficha ficha = BotSelecionarFicha(bot);
+    
+    int col;
+    int tentativas = 0;
+    
+    // Tenta achar uma coluna aleatória válida
+    while(1){
+        col = rand() % colunas; // Gera 0 a 6
+        
+        // Verifica se a coluna escolhida não está cheia (linha 0 vazia)
+        if(jogo->tabuleiro[0][col].vazio){
+            printf("Bot jogou uma ficha %s na coluna %d", ficha.tipo, (col+1));
+            esperar(800);
+            posicionarFicha(jogo, col, ficha);
+            break;
+        }
+        
+        // Safety break: se o tabuleiro estiver quase cheio, evita loop infinito
+        tentativas++;
+        if(tentativas > 20) {
+            // Se falhar muito no aleatório, procura a primeira livre (fallback)
+            for(int i = 0; i < colunas; i++){
+                 if(jogo->tabuleiro[0][i].vazio){
+                    printf("Bot jogou uma ficha %s na coluna %d", ficha.tipo, (i+1));
+                    esperar(800);
+                    posicionarFicha(jogo, i, ficha);
+                    return;
+                 }
+            }
+        }
+    }
+}
+
+void CriarBot(jogador *bot, int precedencia){
+    /*nome definido pela ordem de jogada*/
+    if(precedencia == 1)
+        strcpy(bot->nome, "bot1");
+    else
+        strcpy(bot->nome, "bot2");
+    /*Quantidade padrão de fichas iniciais*/
+    bot->QtdFichaNormal = 21;
+    bot->QtdFichaExplosiva = 0;
+    bot->QtdFichaPortal = 0;
+    /*Controle de turno e ordem de jogada*/
+    bot->turno = 0;
+    bot->precedencia = precedencia;
 }
 
 Ficha BotSelecionarFicha(jogador *bot){
@@ -449,12 +519,12 @@ Ficha BotSelecionarFicha(jogador *bot){
         /*gera um numero aleatório entre 1 e 3 (definição do tipo)*/
         fichaEscolhida = rand()%3 + 1;
 
-        /*se ele escolheu a ficha explosiva mas só tinha ficha portal, muda o tipo*/
+        /*se ele escolheu a ficha explosivasiva mas só tinha ficha portalal, muda o tipo*/
         if(fichaEscolhida == 2 && bot->QtdFichaExplosiva == 0){ 
             if(bot->QtdFichaNormal > 0) fichaEscolhida = 1;
             else fichaEscolhida = 3;
         }
-        /*se ele escolheu a ficha portal mas so tinha explosiva, muda o tipo*/
+        /*se ele escolheu a ficha portalal mas so tinha explosivasiva, muda o tipo*/
         else if(fichaEscolhida == 3 && bot->QtdFichaPortal == 0){
             if(bot->QtdFichaNormal > 0) fichaEscolhida = 1;
             else fichaEscolhida = 2;
@@ -466,28 +536,34 @@ Ficha BotSelecionarFicha(jogador *bot){
             bot->QtdFichaNormal--; 
             strcpy(ficha.tipo, "normal");
             break;
-        case 2: //ficha explosiva
+        case 2: //ficha explosivasiva
             bot->QtdFichaExplosiva--;
-            strcpy(ficha.tipo, "explo");
+            strcpy(ficha.tipo, "explosiva");
             break;
-        case 3: //ficha portal
+        case 3: //ficha portalal
             bot->QtdFichaPortal--;
-            strcpy(ficha.tipo, "port");
+            strcpy(ficha.tipo, "portal");
             break;
     }
     return ficha;
 }
 
+// ======= Fichas especiais
+
+// ======= Modos de jogo
+
 void PrincipalJxJ(){
     int TurnoGlobal = 0;
     jogador jogador1, jogador2;
 
+    /*Cria os jogadores, solicita os nomes ao usuario*/
     printf("nome do jogador 1: ");
     CriarJogador(&jogador1,1);
 
     printf("nome do jogador 2: ");
     CriarJogador(&jogador2,2);
 
+    /*Inicia o tabuleiro do jogo*/
     Tabuleiro6x7 jogo = MontarJogo();
 
     jogoContinua = 1;
@@ -496,50 +572,24 @@ void PrincipalJxJ(){
         LimparTerminal();
         ExibirJogo(&jogo);
 
+        /*O jogador 2 joga em turnos pares*/
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&jogador2);
             ExibirDadosDeJogador(jogador2);
+            /*verifica se o tabuleiro não está lotado*/
             if(existeJogadaValida(&jogo)){
                 Ficha Ficha = SelecionarFicha(&jogador2);
                 verificarJogada(&jogo, Ficha);
             }
         }
+        /*o jogador 1 joga em turnos impares*/
         else{
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
+            /*verifica se o tabuleiro não está lotado*/
             if(existeJogadaValida(&jogo)){
                 Ficha Ficha = SelecionarFicha(&jogador1);
                 verificarJogada(&jogo, Ficha);
-            }
-        }
-    }
-}
-
-void BotJogada(Tabuleiro6x7 *jogo, jogador *bot){
-    Ficha ficha = BotSelecionarFicha(bot);
-    
-    int col;
-    int tentativas = 0;
-    
-    // Tenta achar uma coluna aleatória válida
-    while(1){
-        col = rand() % colunas; // Gera 0 a 6
-        
-        // Verifica se a coluna não está cheia (linha 0 vazia)
-        if(jogo->tabuleiro[0][col].vazio){
-            posicionarFicha(jogo, col, ficha); 
-            break;
-        }
-        
-        // Safety break: se o tabuleiro estiver quase cheio, evita loop infinito
-        tentativas++;
-        if(tentativas > 20) {
-            // Se falhar muito no aleatório, procura a primeira livre (fallback)
-            for(int i = 0; i < colunas; i++){
-                 if(jogo->tabuleiro[0][i].vazio){
-                    posicionarFicha(jogo, i, ficha);
-                    return;
-                 }
             }
         }
     }
@@ -563,16 +613,21 @@ void principalJxBot(){
         LimparTerminal();
         ExibirJogo(&jogo);
 
+        /*Bot joga em turnos pares*/
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&Jogador2Bot);
             ExibirDadosDeJogador(Jogador2Bot);
+            esperar(1500);
+            /*verifica se o tabuleiro não está lotado*/
             if(existeJogadaValida(&jogo)){
                 BotJogada(&jogo, &Jogador2Bot);
             }
         }
+        /*jogador joga em turnos impares*/
         else{
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
+            /*verifica se o tabuleiro não está lotado*/
             if(existeJogadaValida(&jogo)){
                 Ficha Ficha = SelecionarFicha(&jogador1);
                 verificarJogada(&jogo, Ficha);
@@ -603,7 +658,7 @@ void principalBotxBot(){
             IniciarTurnoDoJogador(&Jogador2Bot);
             ExibirDadosDeJogador(Jogador2Bot);
             esperar(2000);
-
+            /*verifica se o tabuleiro não está lotado*/
             if(existeJogadaValida(&jogo)){
                 BotJogada(&jogo, &Jogador2Bot);
             }
@@ -612,13 +667,15 @@ void principalBotxBot(){
             IniciarTurnoDoJogador(&jogador1Bot);
             ExibirDadosDeJogador(jogador1Bot);
             esperar(2000);
-
+            /*verifica se o tabuleiro não está lotado*/
             if(existeJogadaValida(&jogo)){
                 BotJogada(&jogo, &jogador1Bot);
             }
         }
     }
 }
+
+// ====== Hall da fama
 
 void inicializarHallDaFama(){
     FILE *fp = fopen("hall_da_fama", "r");
@@ -722,11 +779,14 @@ void HallDaFama(){
     exibirHallDaFama();
 }
 
+// ====== Função principal
+
 void Lig4(){
     int escolha = 0;
     LimparTerminal();
 
     while(1){
+        /*menu principal*/
         printf("modos de jogo:\n\n");
         printf("1 - jogador x jogador\n");
         printf("2 - jogador x maquina\n");
@@ -734,6 +794,7 @@ void Lig4(){
 
         printf("digite 0 para volta.\n");
         
+        /*mantem o looping até uma entrada valida*/
         printf("esolha: ");
         if(scanf("%d", &escolha) == 0){
             LimparTerminal();
@@ -742,7 +803,7 @@ void Lig4(){
             continue;
         }
         
-
+        /*opções de jogo*/
         switch(escolha){
             case 0:
                 LimparTerminal();
@@ -770,7 +831,7 @@ void Lig4(){
     }
 }
 
-/*Ambiente de testes*/
+// ====== Ambiente de testes
 /*
 int main(){
     
