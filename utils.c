@@ -45,21 +45,31 @@ Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
     return tab;
 }
 
-void CarregarJogo(Tabuleiro6x7 jogo){
+void ExibirJogo(Tabuleiro6x7 *jogo){
     printf("\n\n\n");
     for(int li = 0; li < (linhas+1); li++){
         for(int col = 0; col < colunas; col++){
             if(li<linhas){
-                Casa casa = jogo.tabuleiro[li][col];
+                Casa casa = jogo->tabuleiro[li][col];
                 if(casa.vazio)
                     printf(" . ");
 
                 else if(casa.ficha.dono.precedencia == 1){
-                    printf("\033[34m X \033[0m");
+                    if(strcmp(casa.ficha.tipo,"normal") == 0)
+                        printf("\033[34m X \033[0m");
+                    else if(strcmp(casa.ficha.tipo, "explo") == 0)
+                        printf("\033[34m @ \033[0m");
+                    else if(strcmp(casa.ficha.tipo, "port") == 0)
+                        printf("\033[34m + \033[0m");
                 } 
 
                 else if(casa.ficha.dono.precedencia == 2){
-                    printf("\033[31m O \033[0m");
+                    if(strcmp(casa.ficha.tipo,"normal") == 0)
+                        printf("\033[31m O \033[0m");
+                    else if(strcmp(casa.ficha.tipo, "explo") == 0)
+                        printf("\033[31m @ \033[0m");
+                    else if(strcmp(casa.ficha.tipo, "port") == 0)
+                        printf("\033[31m + \033[0m");
                 }
 
                 else{
@@ -67,7 +77,7 @@ void CarregarJogo(Tabuleiro6x7 jogo){
                 }
             }
             else{
-                if(jogo.tabuleiro[0][col].vazio == 0){
+                if(jogo->tabuleiro[0][col].vazio == 0){
                     printf("\033[31m %d \033[0m", col + 1);
                 }
 
@@ -87,8 +97,8 @@ void vitoria(Tabuleiro6x7 *jogo, jogador vencedor){
     strcpy(vencedorHall.nome, vencedor.nome);
 
     LimparTerminal();
-    CarregarJogo(*jogo);
-    printf("\n====== %s Ganhou!! ======\n", vencedor.nome);
+    ExibirJogo(jogo);
+    printf("\n==== %s Ganhou!! ====\n", vencedor.nome);
     adicionarAoHall(vencedorHall);
 }
 
@@ -211,7 +221,7 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
 
             /*Logica de animação*/
             LimparTerminal();
-            CarregarJogo(*jogo);
+            ExibirJogo(jogo);
             esperar(200);
         }  
         else{
@@ -261,7 +271,7 @@ void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
                 limparCasa(jogo, row, col);
                 preencherCasa(jogo,linhaDeEscrita,col,ficha);
                 LimparTerminal();
-                CarregarJogo(*jogo);
+                ExibirJogo(jogo);
                 esperar(200);
             }
 
@@ -285,8 +295,8 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
 }
 
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
-    preencherCasa(jogo,0,col,ficha);
-    AplicarGravidadeFicha(jogo,col);
+    preencherCasa(jogo,0,col,ficha); /*posiciona a ficha na prieira casa da coluna*/
+    AplicarGravidadeFicha(jogo,col); /*aplica a gravidade para fazer ela descer até o ponto correto*/
 }
 
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
@@ -329,7 +339,7 @@ int existeJogadaValida(Tabuleiro6x7 *jogo){
 Tabuleiro6x7 MontarJogo(){
     /*cria um novo tabuleiro, e o exibe no terminal*/
     Tabuleiro6x7 Tabuleiro = MontarTabuleiro(linhas,colunas);
-    CarregarJogo(Tabuleiro);
+    ExibirJogo(&Tabuleiro);
 
     return Tabuleiro;
 }
@@ -484,7 +494,7 @@ void PrincipalJxJ(){
     while(jogoContinua){
         TurnoGlobal++;
         LimparTerminal();
-        CarregarJogo(jogo);
+        ExibirJogo(&jogo);
 
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&jogador2);
@@ -551,7 +561,7 @@ void principalJxBot(){
     while(jogoContinua){
         TurnoGlobal++;
         LimparTerminal();
-        CarregarJogo(jogo);
+        ExibirJogo(&jogo);
 
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&Jogador2Bot);
@@ -585,8 +595,8 @@ void principalBotxBot(){
     while(jogoContinua){
         TurnoGlobal++;
         LimparTerminal();
-        CarregarJogo(jogo);
-        esperar(2000);
+        ExibirJogo(&jogo);
+        esperar(1500);
 
 
         if(TurnoGlobal%2 == 0){
@@ -774,7 +784,7 @@ int main(){
     preencherCasa(&jogo,2,1,ficha);
     preencherCasa(&jogo,1,1,ficha);
     preencherCasa(&jogo,0,1,ficha);
-    CarregarJogo(jogo);
+    ExibirJogo(&jogo);
     aplicarGravidadeColuna(&jogo,1);
 }
 */

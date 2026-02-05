@@ -38,9 +38,9 @@ typedef struct{
 Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas);
 
 // Função que imprime o tabuleiro na tela
-void CarregarJogo(Tabuleiro6x7 jogo);
+void ExibirJogo(Tabuleiro6x7 *jogo);
 
-// Gera uma nova matriz 6x7 nula com "MontarTabuleiro" e depois imprime na tela com "CarregarJogo"
+// Gera uma nova matriz 6x7 nula com "MontarTabuleiro" e depois imprime na tela com "ExibirJogo"
 Tabuleiro6x7 MontarJogo();
 
 // Finaliza o jogo, exibe vencedor e adiciona ao hall da fama
