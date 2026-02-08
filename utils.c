@@ -230,7 +230,7 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
 int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col){
     /* Retorna 1 se houver um "buraco", 0 caso contrario */
 
-    for(int row = 0; row < linhas; row++){           /*Roda o looping até achar a primeira casa preenchida*/
+    for(int row = 0; row < linhas; row++){           //Roda o looping até achar a primeira casa preenchida
         if(!jogo->tabuleiro[row][col].vazio){
             for(; row < linhas; row++){              /*se achar uma casa preenchida, procura por uma casa vazia abaixo dela*/
                 if(jogo->tabuleiro[row][col].vazio){ /*Se existe uma casa vazia abaixo de uma preenchida, existe um buraco*/
@@ -273,14 +273,16 @@ void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
         }
     }
     for(int row = (linhas-1); row >= 0; row--){
-        verificaVitoria(jogo,jogo->tabuleiro[row][col].ficha,row,col);
+        if(!jogo->tabuleiro[row][col].vazio){
+            verificaVitoria(jogo, jogo->tabuleiro[row][col].ficha, row, col);
+        }
     }
 }
 
 // ======= Logica de Jogadas
 
 void limparCasa(Tabuleiro6x7 *jogo, int row, int col){
-    Ficha nula = {{0},"nulo"};
+    Ficha nula = { { {0} }, "nulo" };
     jogo->tabuleiro[row][col].ficha = nula;
     jogo->tabuleiro[row][col].vazio = 1;
 }
@@ -290,9 +292,65 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
     jogo->tabuleiro[row][col].vazio = 0;
 }
 
+void explodirBomba(Tabuleiro6x7 *jogo, int row, int col) {
+	if (row != 0) {
+		limparCasa(jogo, row-1, col-1);
+		limparCasa(jogo, row-1, col);
+		limparCasa(jogo, row-1, col+1);
+	}
+	if (row != 5) {
+		limparCasa(jogo, row+1, col-1);
+		limparCasa(jogo, row+1, col);
+		limparCasa(jogo, row+1, col+1);
+	}
+	if (col != 0) {
+		limparCasa(jogo, row-1, col-1);
+		limparCasa(jogo, row, col-1);
+		limparCasa(jogo, row+1, col-1);
+	}
+	if (col != 6) {
+		limparCasa(jogo, row-1, col+1);
+		limparCasa(jogo, row, col+1);
+		limparCasa(jogo, row+1, col+1);
+	}
+	limparCasa(jogo, row, col);
+	aplicarGravidadeColuna(jogo, col);
+	if (col != 0) {
+		aplicarGravidadeColuna(jogo, col-1);
+	}
+	if (col != 6) {
+		aplicarGravidadeColuna(jogo, col+1);
+	}
+}
+
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
     preencherCasa(jogo,0,col,ficha); /*posiciona a ficha na prieira casa da coluna*/
     AplicarGravidadeFicha(jogo,col); /*aplica a gravidade para fazer ela descer até o ponto correto*/
+    if (strcmp(ficha.tipo, "portal") == 0) {
+		for (int i=0; i<=5; i++) {
+			if (jogo->tabuleiro[i][col].vazio == 0) {
+				if (strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) {
+					limparCasa(jogo, i, col);
+					limparCasa(jogo, i+1, col);
+					break;
+				}
+				else {
+					strcpy(jogo->tabuleiro[i][col].ficha.tipo, "normal");
+					break;
+				}
+			}
+		}
+	}
+	else {
+		for (int i=0; i<=5; i++) {
+			if (jogo->tabuleiro[i][col].vazio == 0) {
+				if ((strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) && strcmp(jogo->tabuleiro[i+1][col].ficha.tipo, "explosiva") == 0) {
+					explodirBomba(jogo, i+1, col);
+					break;
+				}
+			}
+		}
+	}	
 }
 
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
@@ -342,7 +400,7 @@ int existeJogadaValida(Tabuleiro6x7 *jogo){
 
 Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
     Tabuleiro6x7 tab;
-    Ficha nula = {{0},"nulo"};
+    Ficha nula = { { {0} }, "nulo" };
 
     /*Gera um tabuleiro de fichas nulas com todas as casas definidas como vazias*/
     for(int i = 0; i < linhas; i++){

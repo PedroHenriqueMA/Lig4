@@ -8,7 +8,6 @@
 int main(){
 
     int escolha = 0;
-    Tabuleiro6x7 jogo;
 
     do{
         printf("Lig4\n");
