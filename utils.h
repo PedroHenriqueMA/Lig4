@@ -39,6 +39,17 @@ typedef struct{
 } Tabuleiro6x7;
 
 
+/* ====== FICHAS ESPECIAIS ========*/
+// Apaga uma ficha e a ficha abaixo dela caso tenham donos distintos
+void Teleportar(Tabuleiro6x7 *jogo, int row, int col);
+
+// Elimina a vizinhança 8 de uma ficha e aplica recursividade
+void explodirBomba(Tabuleiro6x7 *jogo, int row, int col);
+
+// Aplica a explodir bomba em uma ficha especifica e depois aplica gravidade em todo o tabuleiro
+void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col);
+
+
 /* ====== INICIALIZAÇÃO DO JOGO ====== */
 // Função para gerar uma matriz de fichas nulas
 Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas);

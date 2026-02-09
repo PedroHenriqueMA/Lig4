@@ -223,8 +223,21 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
             break;
         }
     }
+
+    if(strcmp(ficha.tipo,"portal") == 0){
+        Teleportar(jogo,finalRow,col);
+    }
+
     /*Verifica a vitoria apos mover a ficha*/
     verificaVitoria(jogo,ficha, finalRow, col);
+
+    if((finalRow + 1) < 6){
+        if(strcmp(jogo->tabuleiro[finalRow+1][col].ficha.tipo,"explosiva") == 0){
+            if(jogo->tabuleiro[finalRow+1][col].ficha.dono.precedencia != jogo->tabuleiro[finalRow][col].ficha.dono.precedencia){
+                GerarExplosao(jogo,finalRow,col);
+            }
+        }
+    }
 }
 
 int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col){
@@ -292,39 +305,6 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
     jogo->tabuleiro[row][col].vazio = 0;
 }
 
-void explodirBomba(Tabuleiro6x7 *jogo, int row, int col) {
-    /*Antes de limpar as casas, tem q fazer o teste para ver se é explosiva, se for aplica a recursividade nas coordenadas dela*/
-    /*problema - Como a aplicação da gravidade ocorre no final dessa mesma função, ele vai aplicar a gravidade depois de cada explosão por conta da recursividade, vai virar uma bagunça imprevisivel*/
-	if (row != 0) {
-		limparCasa(jogo, row-1, col-1);
-		limparCasa(jogo, row-1, col);
-		limparCasa(jogo, row-1, col+1);
-	}
-	if (row != 5) {
-		limparCasa(jogo, row+1, col-1);
-		limparCasa(jogo, row+1, col);
-		limparCasa(jogo, row+1, col+1);
-	}
-	if (col != 0) {
-		limparCasa(jogo, row-1, col-1);
-		limparCasa(jogo, row, col-1);
-		limparCasa(jogo, row+1, col-1);
-	}
-	if (col != 6) {
-		limparCasa(jogo, row-1, col+1);
-		limparCasa(jogo, row, col+1);
-		limparCasa(jogo, row+1, col+1);
-	}
-	limparCasa(jogo, row, col);
-	aplicarGravidadeColuna(jogo, col);
-	if (col != 0) {
-		aplicarGravidadeColuna(jogo, col-1);
-	}
-	if (col != 6) {
-		aplicarGravidadeColuna(jogo, col+1);
-	}
-}
-
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
     preencherCasa(jogo,0,col,ficha); /*posiciona a ficha na prieira casa da coluna*/
     AplicarGravidadeFicha(jogo,col); /*aplica a gravidade para fazer ela descer até o ponto correto, também aplica o teste de vitoria*/
@@ -332,12 +312,14 @@ void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
     /*Do jeito que está aqui, ele vai testar a vitoria antes de aplicar os efeitos especiais, verificar com a professora se está correto*/
     /*problema - Não está correto, a ficha portal não se aplica na vitoria*/
     /*Mas é possivel vencer em uma jogada que ativaria a ficha explosiva, nesse caso a ativação não ocorre*/
+
+    /*
     if (strcmp(ficha.tipo, "portal") == 0) {
-		for (int i=0; i<=5; i++) { /*problema - out of bounds, i pode ser = 5, mas ele vai testar i+1, que pode ser 6*/
-            /*Já sabe que a ficha colocado é do tipo portal, então apaga as duas primeiras fichas que encontrar caso elas não tenham o mesmo dono*/
+		for (int i=0; i<=5; i++) { //problema - out of bounds, i pode ser = 5, mas ele vai testar i+1, que pode ser 6
+            //Já sabe que a ficha colocado é do tipo portal, então apaga as duas primeiras fichas que encontrar caso elas não tenham o mesmo dono
 			if (jogo->tabuleiro[i][col].vazio == 0) {
-                /*problema nos não tratamos nomes repetidos, então esse metodo de diferenciação de dono pode dar problema*/
-                /*Utilize a precedencia*/
+                //problema nos não tratamos nomes repetidos, então esse metodo de diferenciação de dono pode dar problema
+                //Utilize a precedencia
 				if (strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) { 
 					limparCasa(jogo, i, col);
 					limparCasa(jogo, i+1, col);
@@ -351,7 +333,7 @@ void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
 		}
 	}
 	else {
-		for (int i=0; i<=5; i++) {/* out of bounds*/
+		for (int i=0; i<=5; i++) {// out of bounds
 			if (jogo->tabuleiro[i][col].vazio == 0) {
 				if ((strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) && strcmp(jogo->tabuleiro[i+1][col].ficha.tipo, "explosiva") == 0) {
 					explodirBomba(jogo, i+1, col);
@@ -359,7 +341,8 @@ void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
 				}
 			}
 		}
-	}	
+	}
+    */
 }
 
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
@@ -455,7 +438,7 @@ void ExibirDadosDeJogador(jogador player){
     printf("\n");
     printf("QTD fichas normais(1): %d\n", player.QtdFichaNormal);
     printf("QTD fichas explosivasivas(2): %d\n", player.QtdFichaExplosiva);
-    printf("QTD fichas portalal(3): %d\n", player.QtdFichaPortal);
+    printf("QTD fichas Portal(3): %d\n", player.QtdFichaPortal);
     printf("\n");
 }
 
@@ -586,12 +569,12 @@ Ficha BotSelecionarFicha(jogador *bot){
         /*gera um numero aleatório entre 1 e 3 (definição do tipo)*/
         fichaEscolhida = rand()%3 + 1;
 
-        /*se ele escolheu a ficha explosivasiva mas só tinha ficha portalal, muda o tipo*/
+        /*se ele escolheu a ficha explosivasiva mas só tinha ficha Portal, muda o tipo*/
         if(fichaEscolhida == 2 && bot->QtdFichaExplosiva == 0){ 
             if(bot->QtdFichaNormal > 0) fichaEscolhida = 1;
             else fichaEscolhida = 3;
         }
-        /*se ele escolheu a ficha portalal mas so tinha explosivasiva, muda o tipo*/
+        /*se ele escolheu a ficha Portal mas so tinha explosivasiva, muda o tipo*/
         else if(fichaEscolhida == 3 && bot->QtdFichaPortal == 0){
             if(bot->QtdFichaNormal > 0) fichaEscolhida = 1;
             else fichaEscolhida = 2;
@@ -607,7 +590,7 @@ Ficha BotSelecionarFicha(jogador *bot){
             bot->QtdFichaExplosiva--;
             strcpy(ficha.tipo, "explosiva");
             break;
-        case 3: //ficha portalal
+        case 3: //ficha Portal
             bot->QtdFichaPortal--;
             strcpy(ficha.tipo, "portal");
             break;
@@ -616,6 +599,66 @@ Ficha BotSelecionarFicha(jogador *bot){
 }
 
 // ======= Fichas especiais
+
+void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col){
+    explodirBomba(jogo,row,col); /*gera a explosão inicial que pode resultar em recursividade*/
+    for(int col =  0; col < (colunas -1); col++){
+        /*Aplica a gravidade em todo o tabuleiro após a explosão recursiva*/
+        /*Junto com a gravidade, aplica também a verificação de vitoria*/
+        aplicarGravidadeColuna(jogo,col);
+    }
+}
+
+void explodirBomba(Tabuleiro6x7 *jogo, int row, int col) {
+    /*Flag - Recursividade*/
+    int aplicarNovaExplosao = 0;
+
+    /*Apaga a bomba*/
+    limparCasa(jogo, row, col);
+
+    /*começa na coluna anterior e vai até a coluna posterior*/
+    for(int coluna = (col - 1); coluna <= (col + 1); coluna++){
+        /*bounds*/
+        if(coluna < 0 || coluna > 6){
+            continue;
+        }
+
+        /*começa na linha acima e vai até a linha abaixo*/
+        for(int linha = (row - 1); linha <= (row + 1); linha++){
+            /*bounds*/
+            if(linha < 0 || linha > 5){
+                continue;
+            }
+
+            /*verifica se a casa não está vazia*/
+            if(jogo->tabuleiro[linha][coluna].vazio == 0){
+                /*recursividade*/
+                if(strcmp(jogo->tabuleiro[linha][coluna].ficha.tipo,"explosiva") == 0 ){
+                    aplicarNovaExplosao = 1;
+                }
+                /*esvazia a casa (explode a ficha)*/
+                limparCasa(jogo,linha,coluna);
+                /*recursividade*/
+                if(aplicarNovaExplosao){
+                    explodirBomba(jogo,linha,coluna);
+                }
+            }
+        }
+    }
+}
+
+void Teleportar(Tabuleiro6x7 *jogo, int row, int col){
+    /*Bounds*/
+    if((col+1) < 6){
+        /*Teste de mesmo dono usando a precedencia do jogador*/
+        if(jogo->tabuleiro[row][col].ficha.dono.precedencia != jogo->tabuleiro[row + 1][col].ficha.dono.precedencia){
+            /*apaga a ficha adversaria abaixo*/
+            limparCasa(jogo,(row+1),col);
+        }
+    }
+    /*sempre se apaga no final*/
+    limparCasa(jogo,row,col);
+}
 
 // ======= Modos de jogo
 
