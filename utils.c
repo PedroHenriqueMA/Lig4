@@ -293,6 +293,8 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
 }
 
 void explodirBomba(Tabuleiro6x7 *jogo, int row, int col) {
+    /*Antes de limpar as casas, tem q fazer o teste para ver se é explosiva, se for aplica a recursividade nas coordenadas dela*/
+    /*problema - Como a aplicação da gravidade ocorre no final dessa mesma função, ele vai aplicar a gravidade depois de cada explosão por conta da recursividade, vai virar uma bagunça imprevisivel*/
 	if (row != 0) {
 		limparCasa(jogo, row-1, col-1);
 		limparCasa(jogo, row-1, col);
@@ -325,11 +327,18 @@ void explodirBomba(Tabuleiro6x7 *jogo, int row, int col) {
 
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
     preencherCasa(jogo,0,col,ficha); /*posiciona a ficha na prieira casa da coluna*/
-    AplicarGravidadeFicha(jogo,col); /*aplica a gravidade para fazer ela descer até o ponto correto*/
+    AplicarGravidadeFicha(jogo,col); /*aplica a gravidade para fazer ela descer até o ponto correto, também aplica o teste de vitoria*/
+
+    /*Do jeito que está aqui, ele vai testar a vitoria antes de aplicar os efeitos especiais, verificar com a professora se está correto*/
+    /*problema - Não está correto, a ficha portal não se aplica na vitoria*/
+    /*Mas é possivel vencer em uma jogada que ativaria a ficha explosiva, nesse caso a ativação não ocorre*/
     if (strcmp(ficha.tipo, "portal") == 0) {
-		for (int i=0; i<=5; i++) {
+		for (int i=0; i<=5; i++) { /*problema - out of bounds, i pode ser = 5, mas ele vai testar i+1, que pode ser 6*/
+            /*Já sabe que a ficha colocado é do tipo portal, então apaga as duas primeiras fichas que encontrar caso elas não tenham o mesmo dono*/
 			if (jogo->tabuleiro[i][col].vazio == 0) {
-				if (strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) {
+                /*problema nos não tratamos nomes repetidos, então esse metodo de diferenciação de dono pode dar problema*/
+                /*Utilize a precedencia*/
+				if (strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) { 
 					limparCasa(jogo, i, col);
 					limparCasa(jogo, i+1, col);
 					break;
@@ -342,7 +351,7 @@ void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
 		}
 	}
 	else {
-		for (int i=0; i<=5; i++) {
+		for (int i=0; i<=5; i++) {/* out of bounds*/
 			if (jogo->tabuleiro[i][col].vazio == 0) {
 				if ((strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) && strcmp(jogo->tabuleiro[i+1][col].ficha.tipo, "explosiva") == 0) {
 					explodirBomba(jogo, i+1, col);
