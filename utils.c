@@ -95,6 +95,11 @@ void vitoria(Tabuleiro6x7 *jogo, jogador vencedor){
 }
 
 void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
+    /* impede chamar vitoria a partir de um ponto vazio */
+    if(jogo->tabuleiro[row][col].vazio ){
+        return;
+    }
+
     /* verificação pra baixo */
     int countSequence = 1;
     for(int i = row + 1; i < linhas ; i++){
@@ -232,10 +237,9 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
     verificaVitoria(jogo,ficha, finalRow, col);
 
     if((finalRow + 1) < 6){
-        if(strcmp(jogo->tabuleiro[finalRow+1][col].ficha.tipo,"explosiva") == 0){
-            if(jogo->tabuleiro[finalRow+1][col].ficha.dono.precedencia != jogo->tabuleiro[finalRow][col].ficha.dono.precedencia){
-                GerarExplosao(jogo,finalRow,col);
-            }
+        Ficha fichaAbaixo = jogo->tabuleiro[finalRow+1][col].ficha;
+        if(strcmp(fichaAbaixo.tipo,"explosiva") == 0 && fichaAbaixo.dono.precedencia != ficha.dono.precedencia){
+            GerarExplosao(jogo,finalRow,col);
         }
     }
 }
@@ -308,41 +312,6 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
     preencherCasa(jogo,0,col,ficha); /*posiciona a ficha na prieira casa da coluna*/
     AplicarGravidadeFicha(jogo,col); /*aplica a gravidade para fazer ela descer até o ponto correto, também aplica o teste de vitoria*/
-
-    /*Do jeito que está aqui, ele vai testar a vitoria antes de aplicar os efeitos especiais, verificar com a professora se está correto*/
-    /*problema - Não está correto, a ficha portal não se aplica na vitoria*/
-    /*Mas é possivel vencer em uma jogada que ativaria a ficha explosiva, nesse caso a ativação não ocorre*/
-
-    /*
-    if (strcmp(ficha.tipo, "portal") == 0) {
-		for (int i=0; i<=5; i++) { //problema - out of bounds, i pode ser = 5, mas ele vai testar i+1, que pode ser 6
-            //Já sabe que a ficha colocado é do tipo portal, então apaga as duas primeiras fichas que encontrar caso elas não tenham o mesmo dono
-			if (jogo->tabuleiro[i][col].vazio == 0) {
-                //problema nos não tratamos nomes repetidos, então esse metodo de diferenciação de dono pode dar problema
-                //Utilize a precedencia
-				if (strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) { 
-					limparCasa(jogo, i, col);
-					limparCasa(jogo, i+1, col);
-					break;
-				}
-				else {
-					strcpy(jogo->tabuleiro[i][col].ficha.tipo, "normal");
-					break;
-				}
-			}
-		}
-	}
-	else {
-		for (int i=0; i<=5; i++) {// out of bounds
-			if (jogo->tabuleiro[i][col].vazio == 0) {
-				if ((strcmp(jogo->tabuleiro[i][col].ficha.dono.nome, jogo->tabuleiro[i+1][col].ficha.dono.nome) != 0) && strcmp(jogo->tabuleiro[i+1][col].ficha.tipo, "explosiva") == 0) {
-					explodirBomba(jogo, i+1, col);
-					break;
-				}
-			}
-		}
-	}
-    */
 }
 
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
