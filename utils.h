@@ -32,7 +32,7 @@ typedef struct{
 typedef struct{
     int vazio;
     Ficha ficha;
-}Casa;
+} Casa;
 
 typedef struct{
     Casa tabuleiro[6][7];
@@ -48,6 +48,9 @@ void explodirBomba(Tabuleiro6x7 *jogo, int row, int col);
 
 // Aplica a explodir bomba em uma ficha especifica e depois aplica gravidade em todo o tabuleiro
 void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col, Ficha gatilho);
+
+// Verifica se existem fichas explosivas que deveriam ser ativadas (ficha adversaria posicionada acima delas) apos um evento de explosão
+void explosaoTardia(Tabuleiro6x7 *jogo);
 
 /* ====== INICIALIZAÇÃO DO JOGO ====== */
 // Função para gerar uma matriz de fichas nulas

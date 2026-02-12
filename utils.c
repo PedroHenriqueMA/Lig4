@@ -288,7 +288,7 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
     if((finalRow + 1) < 6){
         Ficha fichaAbaixo = jogo->tabuleiro[finalRow+1][col].ficha;
         if(strcmp(fichaAbaixo.tipo,"explosiva") == 0 && fichaAbaixo.dono.precedencia != ficha.dono.precedencia){
-            GerarExplosao(jogo,finalRow,col,ficha);
+            GerarExplosao(jogo,finalRow+1,col,ficha);
         }
 
         /*Se algum jogador venceu apos ativar uma ficha explosiva roda os seguintes testes*/
@@ -375,9 +375,7 @@ int aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
             verificaVitoria(jogo, jogo->tabuleiro[row][col].ficha, row, col);
         }
     }
-
 }
-
 // ======= Logica de Jogadas
 
 void limparCasa(Tabuleiro6x7 *jogo, int row, int col){
@@ -659,6 +657,8 @@ void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col, Ficha gatilho){
         /*Junto com a gravidade, aplica também a verificação de vitoria*/
         aplicarGravidadeColuna(jogo,col);
     }
+
+    explosaoTardia(jogo);
 }
 
 void explodirBomba(Tabuleiro6x7 *jogo, int row, int col){
@@ -698,6 +698,21 @@ void explodirBomba(Tabuleiro6x7 *jogo, int row, int col){
             }
         }
     }
+}
+
+void explosaoTardia(Tabuleiro6x7 *jogo){
+    for(int col = 0; col < colunas; col++){
+        for(int linha = 0; linha < (linhas-1); linha++){
+            if(!jogo->tabuleiro[linha+1][col].vazio && !jogo->tabuleiro[linha][col].vazio){
+                Ficha fichaAbaixo = jogo->tabuleiro[linha+1][col].ficha;
+                if(strcmp(fichaAbaixo.tipo,"explosiva") == 0 && fichaAbaixo.dono.precedencia != jogo->tabuleiro[linha][col].ficha.dono.precedencia){
+                    GerarExplosao(jogo,linha+1,col,jogo->tabuleiro[linha][col].ficha);
+                }
+            }
+
+        }
+    }
+    
 }
 
 void Teleportar(Tabuleiro6x7 *jogo, int row, int col){
@@ -1044,17 +1059,18 @@ int main(){
     Tabuleiro6x7 jogo = MontarJogo();
     Ficha ficha = {jog1,"normal"};
     Ficha ficha2 = {jog2,"normal"};
+    Ficha fichaExp = {jog2, "explosiva"};
 
     preencherCasa(&jogo,0,5,ficha);
     preencherCasa(&jogo,0,4,ficha);
-    //preencherCasa(&jogo,0,3,ficha);
+    preencherCasa(&jogo,0,3,ficha);
     //preencherCasa(&jogo,0,2,ficha);
     //preencherCasa(&jogo,0,1,ficha);
     preencherCasa(&jogo,0,0,ficha);
 
     preencherCasa(&jogo,1,5,ficha2);
     preencherCasa(&jogo,1,4,ficha2);
-    preencherCasa(&jogo,1,3,ficha2);
+    preencherCasa(&jogo,1,3,fichaExp);
     preencherCasa(&jogo,1,2,ficha2);
     preencherCasa(&jogo,1,1,ficha2);
     preencherCasa(&jogo,1,0,ficha2);
@@ -1068,5 +1084,4 @@ int main(){
     printf("%d %d", vitoriaJog1, vitoriaJog2);
     
 }
-*/
-
+    */
