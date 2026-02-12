@@ -342,7 +342,7 @@ int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col){
     return 0;
 }
 
-int aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
+void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
     int linhaDeEscrita;
     /*o processo está propositalmente ineficiente, essa logica menos otimizada permite a ilusão de uma animação de queda*/
     /*se o proposito for otimização maxima, retire o teste da linha de escrita no primeiro if e o laço while*/
@@ -872,6 +872,21 @@ void limparHallDaFama(){
     fclose(fp);
 }
 
+int lerHallDaFama(jogadorHall *jogadores, int max){
+    /* abre arquivo em leitura */
+    FILE *fp = fopen("hall_da_fama", "rb");
+    /* verifica se encontrou */
+    if(fp == NULL){
+        return 0;
+    }
+    /* pega o total de elementos dentro do arquivo, enquanto os lê*/
+    int total = fread(jogadores, sizeof(jogadorHall), max, fp);
+
+    /* fecha arquivo */
+    fclose(fp);
+    return total;
+}
+
 void adicionarAoHall(jogadorHall jogador){
     if(jogador.pontuacao < 4){
         printf("Erro: Jogador nao pode entrar no hall com pontuacao menor que 4!\n");
@@ -881,22 +896,18 @@ void adicionarAoHall(jogadorHall jogador){
     if(strcmp(jogador.nome, "bot1") == 0 || strcmp(jogador.nome, "bot2") == 0){
         return;
     }
-    /* Abre arquivo em modo leitura e escrita */
-    FILE *fp = fopen("hall_da_fama", "rb+");
-    if(fp == NULL){
-        printf("Erro: Falha ao procurar arquivo!\n");
-        return;
-    }
-    
-    jogadorHall jogadores[4];
 
-    /* inicializa os elementos do vetor com 0 */
+    /* inicializa os elementos do vetor */
+    jogadorHall jogadores[4];
     memset(jogadores, 0, sizeof(jogadores));
 
-    int total = 0;
-    /* lê no máximo 3 elementos para evitar overflow do vetor */
-    while(total < 3 && fread(&jogadores[total], sizeof(jogadorHall), 1, fp) == 1){
-        total++;
+    int total = lerHallDaFama(jogadores, 3);
+
+    /* abre arquivo em escrita binária */
+    FILE *fp = fopen("hall_da_fama", "wb");
+    if(fp == NULL){
+        printf("Erro: Falha ao escrever arquivo!\n");
+        return;
     }
 
     /* substitui jogador de mesmo nome se pontuação atual for superior */
@@ -910,6 +921,7 @@ void adicionarAoHall(jogadorHall jogador){
             break;
         }
     }
+
     /* adiciona jogador a lista se não houver substituição */
     if(!substituiu){
         /* evita buffer overflow */
@@ -918,7 +930,7 @@ void adicionarAoHall(jogadorHall jogador){
         }
     }
 
-    /* Bubble sort, nesse caso como n=4, mesmo com complexidade O(n^2) isso n chega a ser problema */
+    /* Faz a ordenação */
     for(int i = 0; i < total; i++){
         for(int j = 0; j < total; j++){
             if(jogadores[j].pontuacao > jogadores[i].pontuacao){
@@ -929,9 +941,6 @@ void adicionarAoHall(jogadorHall jogador){
         }
     }
 
-    /* volta ao início do arquivo */
-    rewind(fp);
-
     /* sobrescreve com os novos dados */
     fwrite(jogadores, sizeof(jogadorHall), total > 3 ? 3: total , fp);
 
@@ -939,30 +948,26 @@ void adicionarAoHall(jogadorHall jogador){
 }
 
 void exibirHallDaFama(){
-    /* abre arquivo em leitura */
-    FILE *fp = fopen("hall_da_fama", "rb");
-    /* verifica se encontra o arquivo */
-    if(fp == NULL){
-        printf("Erro: Falha ao procurar arquivo!\n");
-        return;
-    }
-    
-    /* para cada jogador exibe seu nome e pontuação */
-    jogadorHall jogador;
-    int count = 0;
-    while(fread(&jogador, sizeof(jogadorHall), 1, fp) == 1) {
-        count++;
-        printf("-> %i lugar \n", count);
-        printf("Nome do jogador: %s\n", jogador.nome);
-        printf("Pontuacao: %i\n", jogador.pontuacao);
-        printf("------------\n");
-    }
+    jogadorHall jogadores[3];
+
+    int total = lerHallDaFama(jogadores, 3);
+
     /* se nenhum jogador encontrado */
-    if(count == 0){
+    if(total == 0){
         printf("=================\n");
         printf("Nao ha vitoriosos\n");
         printf("=================\n");
+        return;
     }
+
+    /* para cada jogador exibe seu nome e pontuação */
+    for(int i = 0; i < total; i++){
+        printf("-> %i lugar\n", i + 1);
+        printf("Nome do jogador: %s\n", jogadores[i].nome);
+        printf("Pontuacao: %i\n", jogadores[i].pontuacao);
+        printf("------------\n");
+    }
+
     /* saída */
     char c;
     printf("Digite algo para sair:");
@@ -970,8 +975,6 @@ void exibirHallDaFama(){
     scanf("%c", &c);
 
     LimparTerminal();
-
-    fclose(fp);
 }
 
 void HallDaFama(){
