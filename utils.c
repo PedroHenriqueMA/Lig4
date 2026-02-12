@@ -757,11 +757,13 @@ void principalBotxBot(){
 // ====== Hall da fama
 
 void inicializarHallDaFama(){
+    /* abre em leitura */
     FILE *fp = fopen("hall_da_fama", "r");
+    /* se não existir, cria-se o arquivo */
     if(fp == NULL){
         FILE * createfp = fopen("hall_da_fama", "w");
         if(createfp == NULL){
-            printf("Erro: Falha ao criar arquivo Hall da Fama!");
+            printf("Erro: Falha ao criar arquivo Hall da Fama!\n");
             return;
         }
         fclose(createfp);
@@ -771,9 +773,10 @@ void inicializarHallDaFama(){
 }
 
 void limparHallDaFama(){
+    /* basta abrir um arquivo em modo de escrita para sobrescrever ele */
     FILE *fp = fopen("hall_da_fama", "w");
     if(fp == NULL){
-        printf("Erro: Falha ao limpar arquivo!");
+        printf("Erro: Falha ao limpar arquivo!\n");
         return;
     }
     fclose(fp);
@@ -781,28 +784,51 @@ void limparHallDaFama(){
 
 void adicionarAoHall(jogadorHall jogador){
     if(jogador.pontuacao < 4){
-        printf("Erro: Jogador nao pode entrar no hall com pontuacao < 4!\n");
+        printf("Erro: Jogador nao pode entrar no hall com pontuacao menor que 4!\n");
         return;   
     }
-
+    /* Impede o bot de entrar no ranking */
+    if(strcmp(jogador.nome, "bot1") == 0 || strcmp(jogador.nome, "bot2") == 0){
+        return;
+    }
+    /* Abre arquivo em modo leitura e escrita */
     FILE *fp = fopen("hall_da_fama", "rb+");
     if(fp == NULL){
-        printf("Erro: Falha ao procurar arquivo!");
+        printf("Erro: Falha ao procurar arquivo!\n");
         return;
     }
     
     jogadorHall jogadores[4];
+
+    /* inicializa os elementos do vetor com 0 */
     memset(jogadores, 0, sizeof(jogadores));
 
     int total = 0;
-    while(fread(&jogadores[total], sizeof(jogadorHall), 1, fp) == 1){
+    /* lê no máximo 3 elementos para evitar overflow do vetor */
+    while(total < 3 && fread(&jogadores[total], sizeof(jogadorHall), 1, fp) == 1){
         total++;
     }
-    
-    jogadores[total] = jogador;
-    total++;
 
-    /* Bubble sort, dá pra mudar depois, mas nesse caso como n=4 O(n^2) n chega a ser problema */
+    /* substitui jogador de mesmo nome se pontuação atual for superior */
+    int substituiu = 0;
+    for(int i = 0; i < total; i++){
+        if(strcmp(jogador.nome, jogadores[i].nome) == 0){
+            if(jogador.pontuacao < jogadores[i].pontuacao){
+                jogadores[i] = jogador;
+            }
+            substituiu = 1;
+            break;
+        }
+    }
+    /* adiciona jogador a lista se não houver substituição */
+    if(!substituiu){
+        /* evita buffer overflow */
+        if(total < 4){
+            jogadores[total++] = jogador;
+        }
+    }
+
+    /* Bubble sort, nesse caso como n=4, mesmo com complexidade O(n^2) isso n chega a ser problema */
     for(int i = 0; i < total; i++){
         for(int j = 0; j < total; j++){
             if(jogadores[j].pontuacao > jogadores[i].pontuacao){
@@ -823,12 +849,15 @@ void adicionarAoHall(jogadorHall jogador){
 }
 
 void exibirHallDaFama(){
+    /* abre arquivo em leitura */
     FILE *fp = fopen("hall_da_fama", "rb");
+    /* verifica se encontra o arquivo */
     if(fp == NULL){
-        printf("Erro: Falha ao procurar arquivo!");
+        printf("Erro: Falha ao procurar arquivo!\n");
         return;
     }
     
+    /* para cada jogador exibe seu nome e pontuação */
     jogadorHall jogador;
     int count = 0;
     while(fread(&jogador, sizeof(jogadorHall), 1, fp) == 1) {
@@ -838,11 +867,13 @@ void exibirHallDaFama(){
         printf("Pontuacao: %i\n", jogador.pontuacao);
         printf("------------\n");
     }
+    /* se nenhum jogador encontrado */
     if(count == 0){
         printf("=================\n");
         printf("Nao ha vitoriosos\n");
         printf("=================\n");
     }
+    /* saída */
     char c;
     printf("Digite algo para sair:");
     getchar();
@@ -854,7 +885,6 @@ void exibirHallDaFama(){
 }
 
 void HallDaFama(){
-    inicializarHallDaFama();
     exibirHallDaFama();
 }
 

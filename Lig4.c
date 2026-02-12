@@ -6,7 +6,7 @@
 //./Lig4.exe
 
 int main(){
-
+    inicializarHallDaFama();
     int escolha = 0;
 
     do{
