@@ -47,8 +47,7 @@ void Teleportar(Tabuleiro6x7 *jogo, int row, int col);
 void explodirBomba(Tabuleiro6x7 *jogo, int row, int col);
 
 // Aplica a explodir bomba em uma ficha especifica e depois aplica gravidade em todo o tabuleiro
-void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col);
-
+void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col, Ficha gatilho);
 
 /* ====== INICIALIZAÇÃO DO JOGO ====== */
 // Função para gerar uma matriz de fichas nulas
@@ -87,13 +86,13 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col);
 // Verifica se há um "buraco" (casa vazia com casa preenchida abaixo) em uma coluna
 int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col);
 
-// Aplica gravidade em todas as fichas de uma coluna, corrigindo buracos
-void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col);
+// Aplica gravidade em todas as fichas de uma coluna, corrigindo buracos 
+int aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col);
 
 
 /* ====== VERIFICAÇÃO DE VITÓRIA ====== */
 // Verifica se a peça gera condição de vitória (4 em linha)
-void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col);
+int verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col);
 
 // Finaliza o jogo, exibe vencedor e adiciona ao hall da fama
 void vitoria(Tabuleiro6x7 *jogo, jogador vencedor);

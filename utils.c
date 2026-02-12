@@ -14,6 +14,8 @@
 const int linhas = 6;
 const int colunas = 7;
 int jogoContinua = 1;
+int vitoriaJog1 = 0;
+int vitoriaJog2 = 0;
 
 // ====== utilidades diversas
 
@@ -94,22 +96,28 @@ void vitoria(Tabuleiro6x7 *jogo, jogador vencedor){
     adicionarAoHall(vencedorHall);
 }
 
-void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
+int verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* impede chamar vitoria a partir de um ponto vazio */
     if(jogo->tabuleiro[row][col].vazio ){
-        return;
+        return 0;
     }
 
     /* verificação pra baixo */
     int countSequence = 1;
     for(int i = row + 1; i < linhas ; i++){
         Casa casa = jogo->tabuleiro[i][col];
-        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){ 
+        if(casa.ficha.dono.precedencia == ficha.dono.precedencia){
             countSequence++;
-                if(countSequence == 4){
-                    vitoria(jogo, ficha.dono);
-                    break;
+            if(countSequence == 4){
+                if(ficha.dono.precedencia == 1){
+                    vitoriaJog1 = 1;
                 }
+                else{
+                    vitoriaJog2 = 1;
+                }
+                return 1;
+                break;
+            }
         }else{
             break;
         }
@@ -118,12 +126,18 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* Lateral */
     countSequence = 1;
     /* Verificação a direita */
-    for(int j = col + 1; j <= colunas; j++){
+    for(int j = col + 1; j < colunas; j++){
         Casa casa = jogo->tabuleiro[row][j];
-        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){ 
+        if(casa.ficha.dono.precedencia == ficha.dono.precedencia){
             countSequence++;
             if(countSequence == 4){
-                vitoria(jogo, ficha.dono);
+                if(ficha.dono.precedencia == 1){
+                    vitoriaJog1 = 1;
+                }
+                else{
+                    vitoriaJog2 = 1;
+                }
+                return 1;
                 break;
             }
         }else{
@@ -133,10 +147,16 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* Verificação a esquerda */
     for(int j = col -1; j >= 0; j--){
         Casa casa = jogo->tabuleiro[row][j];
-        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){ 
+        if(casa.ficha.dono.precedencia == ficha.dono.precedencia){
             countSequence++;
             if(countSequence == 4){
-                vitoria(jogo, ficha.dono);
+                if(ficha.dono.precedencia == 1){
+                    vitoriaJog1 = 1;
+                }
+                else{
+                    vitoriaJog2 = 1;
+                }
+                return 1;
                 break;
             }
         }else{
@@ -150,10 +170,16 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* Verificação (+,+)*/
     for(int i = row + 1, j = col + 1; i < linhas && j < colunas; i++, j++){
         Casa casa = jogo->tabuleiro[i][j];
-        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+        if(casa.ficha.dono.precedencia == ficha.dono.precedencia){
             countSequence++;
             if(countSequence == 4){
-                vitoria(jogo, ficha.dono);
+                if(ficha.dono.precedencia == 1){
+                    vitoriaJog1 = 1;
+                }
+                else{
+                    vitoriaJog2 = 1;
+                }
+                return 1;
                 break;
             }
         }else{
@@ -164,10 +190,16 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* Verificação (-,-) */
     for(int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--){
         Casa casa = jogo->tabuleiro[i][j];
-        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+        if(casa.ficha.dono.precedencia == ficha.dono.precedencia){
             countSequence++;
             if(countSequence == 4){
-                vitoria(jogo, ficha.dono);
+                if(ficha.dono.precedencia == 1){
+                    vitoriaJog1 = 1;
+                }
+                else{
+                    vitoriaJog2 = 1;
+                }
+                return 1;
                 break;
             }
         }else{
@@ -180,10 +212,16 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* Verificação (+,-) */
     for(int i = row + 1, j = col - 1; i < linhas && j >= 0; i++, j--){
         Casa casa = jogo->tabuleiro[i][j];
-        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+        if(casa.ficha.dono.precedencia == ficha.dono.precedencia){
             countSequence++;
             if(countSequence == 4){
-                vitoria(jogo, ficha.dono);
+                if(ficha.dono.precedencia == 1){
+                    vitoriaJog1 = 1;
+                }
+                else{
+                    vitoriaJog2 = 1;
+                }
+                return 1;
                 break;
             }
         }else{
@@ -194,16 +232,24 @@ void verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
     /* Verificação (-,+) */
     for(int i = row - 1, j = col + 1; i >= 0 && j < colunas; i--, j++){
         Casa casa = jogo->tabuleiro[i][j];
-        if(strcmp(casa.ficha.dono.nome, ficha.dono.nome) == 0){
+        if(casa.ficha.dono.precedencia == ficha.dono.precedencia){
             countSequence++;
             if(countSequence == 4){
-                vitoria(jogo, ficha.dono);
+                if(ficha.dono.precedencia == 1){
+                    vitoriaJog1 = 1;
+                }
+                else{
+                    vitoriaJog2 = 1;
+                }
+                return 1;
                 break;
             }
         }else{
             break;
         }
     }
+
+    return 0;
 }
 
 // ======= Gravidade
@@ -234,12 +280,46 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
     }
 
     /*Verifica a vitoria apos mover a ficha*/
-    verificaVitoria(jogo,ficha, finalRow, col);
+    if(verificaVitoria(jogo, ficha, finalRow, col)){
+        /*Chama a vitoria antes para impedir um possivel efeito de explosão e otimizar o codigo*/
+        vitoria(jogo, ficha.dono);        
+    }
 
     if((finalRow + 1) < 6){
         Ficha fichaAbaixo = jogo->tabuleiro[finalRow+1][col].ficha;
         if(strcmp(fichaAbaixo.tipo,"explosiva") == 0 && fichaAbaixo.dono.precedencia != ficha.dono.precedencia){
-            GerarExplosao(jogo,finalRow,col);
+            GerarExplosao(jogo,finalRow,col,ficha);
+        }
+
+        /*Se algum jogador venceu apos ativar uma ficha explosiva roda os seguintes testes*/
+        if(vitoriaJog1 || vitoriaJog2){
+            jogador jog1;
+            jogador jog2;
+
+            /*Define quem é o jogador 1 e quem é o jogador 2*/
+            if(ficha.dono.precedencia == 1){
+                jog1 = ficha.dono;
+                jog2 = fichaAbaixo.dono;
+            }
+            else{
+                jog1 = fichaAbaixo.dono;
+                jog2 = ficha.dono;
+            }
+
+            /*Se ao menos um deles venceu mas a flag do jogador 2 continua zerada. então o jogador 1 venceu*/
+            if(vitoriaJog2 == 0){
+                vitoria(jogo, jog1);
+            }
+
+            /*Se ao menos um deles venceu mas a flag do jogador 1 continua zerada. então o jogador 2 venceu*/
+            else if(vitoriaJog1 == 0){
+                vitoria(jogo, jog2);
+            }
+
+            /*Se ambos venceram, então da a vitória para o dono da ultima ficha jogada (ultimo jogador à jogar, dono do turno e quem ativou a ficha explosiva)*/
+            else if(vitoriaJog1 && vitoriaJog2){
+                vitoria(jogo, ficha.dono);
+            }
         }
     }
 }
@@ -262,7 +342,7 @@ int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col){
     return 0;
 }
 
-void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
+int aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
     int linhaDeEscrita;
     /*o processo está propositalmente ineficiente, essa logica menos otimizada permite a ilusão de uma animação de queda*/
     /*se o proposito for otimização maxima, retire o teste da linha de escrita no primeiro if e o laço while*/
@@ -289,11 +369,13 @@ void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
             linhaDeEscrita--;
         }
     }
+
     for(int row = (linhas-1); row >= 0; row--){
         if(!jogo->tabuleiro[row][col].vazio){
             verificaVitoria(jogo, jogo->tabuleiro[row][col].ficha, row, col);
         }
     }
+
 }
 
 // ======= Logica de Jogadas
@@ -569,8 +651,9 @@ Ficha BotSelecionarFicha(jogador *bot){
 
 // ======= Fichas especiais
 
-void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col){
+void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col, Ficha gatilho){
     explodirBomba(jogo,row,col); /*gera a explosão inicial que pode resultar em recursividade*/
+
     for(int col =  0; col < (colunas -1); col++){
         /*Aplica a gravidade em todo o tabuleiro após a explosão recursiva*/
         /*Junto com a gravidade, aplica também a verificação de vitoria*/
@@ -578,38 +661,39 @@ void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col){
     }
 }
 
-void explodirBomba(Tabuleiro6x7 *jogo, int row, int col) {
-    /*Flag - Recursividade*/
-    int aplicarNovaExplosao = 0;
-
-    /*Apaga a bomba*/
+void explodirBomba(Tabuleiro6x7 *jogo, int row, int col){
+    /* Apaga a bomba central primeiro para evitar loop infinito na recursão */
     limparCasa(jogo, row, col);
 
-    /*começa na coluna anterior e vai até a coluna posterior*/
+    /* Começa na coluna anterior e vai até a coluna posterior */
     for(int coluna = (col - 1); coluna <= (col + 1); coluna++){
-        /*bounds*/
-        if(coluna < 0 || coluna > 6){
+        /* Bounds check usando as variáveis globais 'colunas' */
+        if(coluna < 0 || coluna >= colunas){ 
             continue;
         }
 
-        /*começa na linha acima e vai até a linha abaixo*/
+        /* Começa na linha acima e vai até a linha abaixo */
         for(int linha = (row - 1); linha <= (row + 1); linha++){
-            /*bounds*/
-            if(linha < 0 || linha > 5){
+            /* Bounds check usando as variáveis globais 'linhas' */
+            if(linha < 0 || linha >= linhas){ 
                 continue;
             }
 
-            /*verifica se a casa não está vazia*/
+            /* Ignora a própria casa que já foi apagada (otimização) */
+            if (linha == row && coluna == col) continue;
+
+            /* Verifica se a casa não está vazia */
             if(jogo->tabuleiro[linha][coluna].vazio == 0){
-                /*recursividade*/
-                if(strcmp(jogo->tabuleiro[linha][coluna].ficha.tipo,"explosiva") == 0 ){
-                    aplicarNovaExplosao = 1;
-                }
-                /*esvazia a casa (explode a ficha)*/
-                limparCasa(jogo,linha,coluna);
-                /*recursividade*/
-                if(aplicarNovaExplosao){
-                    explodirBomba(jogo,linha,coluna);
+                
+                /* Verifica SE É EXPLOSIVA antes de apagar */
+                int ehExplosiva = (strcmp(jogo->tabuleiro[linha][coluna].ficha.tipo, "explosiva") == 0);
+
+                /* Esvazia a casa (explode a ficha vizinha) */
+                limparCasa(jogo, linha, coluna);
+
+                /*recursividade só acontece se ESTA ficha específica era explosiva */
+                if(ehExplosiva){
+                    explodirBomba(jogo, linha, coluna);
                 }
             }
         }
@@ -618,7 +702,7 @@ void explodirBomba(Tabuleiro6x7 *jogo, int row, int col) {
 
 void Teleportar(Tabuleiro6x7 *jogo, int row, int col){
     /*Bounds*/
-    if((col+1) < 6){
+    if((row+1) < 6){
         /*Teste de mesmo dono usando a precedencia do jogador*/
         if(jogo->tabuleiro[row][col].ficha.dono.precedencia != jogo->tabuleiro[row + 1][col].ficha.dono.precedencia){
             /*apaga a ficha adversaria abaixo*/
@@ -645,6 +729,8 @@ void PrincipalJxJ(){
     /*Inicia o tabuleiro do jogo*/
     Tabuleiro6x7 jogo = MontarJogo();
 
+    vitoriaJog1 = 0;
+    vitoriaJog2 = 0;
     jogoContinua = 1;
     while(jogoContinua){
         TurnoGlobal++;
@@ -686,6 +772,8 @@ void principalJxBot(){
 
     Tabuleiro6x7 jogo = MontarJogo();
 
+    vitoriaJog1 = 0;
+    vitoriaJog2 = 0;
     jogoContinua = 1;
     while(jogoContinua){
         TurnoGlobal++;
@@ -725,6 +813,8 @@ void principalBotxBot(){
 
     Tabuleiro6x7 jogo = MontarJogo();
 
+    vitoriaJog1 = 0;
+    vitoriaJog2 = 0;
     jogoContinua = 1;
     while(jogoContinua){
         TurnoGlobal++;
@@ -943,18 +1033,40 @@ void Lig4(){
 // ====== Ambiente de testes
 /*
 int main(){
+
+    vitoriaJog1 = 0;
+    vitoriaJog2 = 0;
+
+    jogador jog1,jog2;
     
-    jogador jog1;
-    CriarBot(&jog1,2);
+    CriarBot(&jog1,1);
+    CriarBot(&jog2,2);
     Tabuleiro6x7 jogo = MontarJogo();
     Ficha ficha = {jog1,"normal"};
-    //preencherCasa(&jogo,5,1,ficha);
-    preencherCasa(&jogo,4,1,ficha);
-    //preencherCasa(&jogo,3,1,ficha);
-    preencherCasa(&jogo,2,1,ficha);
-    preencherCasa(&jogo,1,1,ficha);
-    preencherCasa(&jogo,0,1,ficha);
+    Ficha ficha2 = {jog2,"normal"};
+
+    preencherCasa(&jogo,0,5,ficha);
+    preencherCasa(&jogo,0,4,ficha);
+    //preencherCasa(&jogo,0,3,ficha);
+    //preencherCasa(&jogo,0,2,ficha);
+    //preencherCasa(&jogo,0,1,ficha);
+    preencherCasa(&jogo,0,0,ficha);
+
+    preencherCasa(&jogo,1,5,ficha2);
+    preencherCasa(&jogo,1,4,ficha2);
+    preencherCasa(&jogo,1,3,ficha2);
+    preencherCasa(&jogo,1,2,ficha2);
+    preencherCasa(&jogo,1,1,ficha2);
+    preencherCasa(&jogo,1,0,ficha2);
     ExibirJogo(&jogo);
-    aplicarGravidadeColuna(&jogo,1);
+
+    for(int i = 0; i < colunas; i++){
+        aplicarGravidadeColuna(&jogo,i);
+    }
+
+    ExibirJogo(&jogo);
+    printf("%d %d", vitoriaJog1, vitoriaJog2);
+    
 }
 */
+
