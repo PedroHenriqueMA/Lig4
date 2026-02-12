@@ -90,7 +90,7 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col);
 int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col);
 
 // Aplica gravidade em todas as fichas de uma coluna, corrigindo buracos 
-int aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col);
+void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col);
 
 
 /* ====== VERIFICAÇÃO DE VITÓRIA ====== */
@@ -146,6 +146,9 @@ void inicializarHallDaFama();
 
 // Limpa tudo que estiver escrito no arquivo hall_da_fama
 void limparHallDaFama();
+
+// Lê o Hall da fama e retorna o total de jogadores lidos
+int lerHallDaFama(jogadorHall *jogadores, int max);
 
 // Busca os jogadores no arquivo e realiza comparação com o jogador passado
 void adicionarAoHall(jogadorHall jogador);
