@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include "utils.h"
 
-//gcc Lig4.c utils.c -o Lig4.exe
-//./Lig4.exe
-
 int main(){
     inicializarHallDaFama();
     int escolha = 0;
@@ -15,7 +12,6 @@ int main(){
         printf("1 - jogar\n");
         printf("2 - hall da fama\n");
         printf("3 - sair\n\n");
-
 
         printf("Digite sua escolha: ");
 
@@ -40,6 +36,5 @@ int main(){
         }
     }while(escolha != 3);
     
-
     return 0;
 }

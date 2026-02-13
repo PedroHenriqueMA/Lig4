@@ -86,7 +86,7 @@ int existeJogadaValida(Tabuleiro6x7 *jogo);
 // Aplica gravidade em uma ficha individual, movendo ela para baixo
 void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col);
 
-// Verifica se há um "buraco" (casa vazia com casa preenchida abaixo) em uma coluna
+// Verifica se há um "buraco" (casa vazia com casa preenchida abaixo) em uma coluna, se tem retorna 1 se não 0
 int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col);
 
 // Aplica gravidade em todas as fichas de uma coluna, corrigindo buracos 

@@ -17,7 +17,7 @@ int jogoContinua = 1;
 int vitoriaJog1 = 0;
 int vitoriaJog2 = 0;
 
-// ====== utilidades diversas
+// ====== Utilidades diversas
 
 void esperar(int milisegundos){
     #ifdef _WIN32
@@ -97,12 +97,12 @@ void vitoria(Tabuleiro6x7 *jogo, jogador vencedor){
 }
 
 int verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
-    /* impede chamar vitoria a partir de um ponto vazio */
+    /* Impede chamar vitoria a partir de um ponto vazio */
     if(jogo->tabuleiro[row][col].vazio ){
         return 0;
     }
 
-    /* verificação pra baixo */
+    /* Verificação pra baixo */
     int countSequence = 1;
     for(int i = row + 1; i < linhas ; i++){
         Casa casa = jogo->tabuleiro[i][col];
@@ -255,22 +255,22 @@ int verificaVitoria(Tabuleiro6x7 *jogo, Ficha ficha, int row, int col){
 // ======= Gravidade
 
 void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
-    Ficha ficha = jogo->tabuleiro[0][col].ficha; /*Pega a ficha que esta na primeira linha da coluna*/
+    Ficha ficha = jogo->tabuleiro[0][col].ficha; /* Pega a ficha que esta na primeira linha da coluna */
     int finalRow = 0;
 
-    for(int row = 0; row < (linhas-1); row++){      /*Percorre a coluna do topo para baixo*/
-        if(jogo->tabuleiro[row+1][col].vazio){      /*testa se a linha de baixo está vazia*/
-            limparCasa(jogo,row,col);               /*deleta a ficha da casa atual*/
-            preencherCasa(jogo,(row+1),col,ficha);  /*posiciona ela na linha de baixo*/
+    for(int row = 0; row < (linhas-1); row++){      /* Percorre a coluna do topo para baixo */
+        if(jogo->tabuleiro[row+1][col].vazio){      /* Testa se a linha de baixo está vazia */
+            limparCasa(jogo,row,col);               /* Deleta a ficha da casa atual */
+            preencherCasa(jogo,(row+1),col,ficha);  /* Posiciona ela na linha de baixo */
             finalRow = row+1;
 
-            /*Logica de animação*/
+            /* Logica de animação */
             LimparTerminal();
             ExibirJogo(jogo);
             esperar(200);
         }  
         else{
-            /*Se a casa abaixo está preenchida, a ficha já esta no ponto mais baixo possivel*/
+            /* Se a casa abaixo está preenchida, a ficha já esta no ponto mais baixo possivel */
             break;
         }
     }
@@ -279,9 +279,9 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
         Teleportar(jogo,finalRow,col);
     }
 
-    /*Verifica a vitoria apos mover a ficha*/
+    /* Verifica a vitoria apos mover a ficha */
     if(verificaVitoria(jogo, ficha, finalRow, col)){
-        /*Chama a vitoria antes para impedir um possivel efeito de explosão e otimizar o codigo*/
+        /* Chama a vitoria antes para impedir um possivel efeito de explosão e otimizar o codigo */
         vitoria(jogo, ficha.dono);        
     }
 
@@ -291,12 +291,12 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
             GerarExplosao(jogo,finalRow+1,col,ficha);
         }
 
-        /*Se algum jogador venceu apos ativar uma ficha explosiva roda os seguintes testes*/
+        /* Se algum jogador venceu apos ativar uma ficha explosiva roda os seguintes testes */
         if(vitoriaJog1 || vitoriaJog2){
             jogador jog1;
             jogador jog2;
 
-            /*Define quem é o jogador 1 e quem é o jogador 2*/
+            /* Define quem é o jogador 1 e quem é o jogador 2 */
             if(ficha.dono.precedencia == 1){
                 jog1 = ficha.dono;
                 jog2 = fichaAbaixo.dono;
@@ -306,17 +306,17 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
                 jog2 = ficha.dono;
             }
 
-            /*Se ao menos um deles venceu mas a flag do jogador 2 continua zerada. então o jogador 1 venceu*/
+            /* Se ao menos um deles venceu mas a flag do jogador 2 continua zerada. então o jogador 1 venceu */
             if(vitoriaJog2 == 0){
                 vitoria(jogo, jog1);
             }
 
-            /*Se ao menos um deles venceu mas a flag do jogador 1 continua zerada. então o jogador 2 venceu*/
+            /* Se ao menos um deles venceu mas a flag do jogador 1 continua zerada. então o jogador 2 venceu */
             else if(vitoriaJog1 == 0){
                 vitoria(jogo, jog2);
             }
 
-            /*Se ambos venceram, então da a vitória para o dono da ultima ficha jogada (ultimo jogador à jogar, dono do turno e quem ativou a ficha explosiva)*/
+            /* Se ambos venceram, então da a vitória para o dono da ultima ficha jogada (ultimo jogador à jogar, dono do turno e quem ativou a ficha explosiva) */
             else if(vitoriaJog1 && vitoriaJog2){
                 vitoria(jogo, ficha.dono);
             }
@@ -325,38 +325,33 @@ void AplicarGravidadeFicha(Tabuleiro6x7 *jogo, int col){
 }
 
 int TemBuracoNaColuna(Tabuleiro6x7 *jogo, int col){
-    /* Retorna 1 se houver um "buraco", 0 caso contrario */
-
-    for(int row = 0; row < linhas; row++){           //Roda o looping até achar a primeira casa preenchida
+    for(int row = 0; row < linhas; row++){           // Roda o looping até achar a primeira casa preenchida
         if(!jogo->tabuleiro[row][col].vazio){
-            for(; row < linhas; row++){              /*se achar uma casa preenchida, procura por uma casa vazia abaixo dela*/
-                if(jogo->tabuleiro[row][col].vazio){ /*Se existe uma casa vazia abaixo de uma preenchida, existe um buraco*/
+            for(; row < linhas; row++){              /* Se achar uma casa preenchida, procura por uma casa vazia abaixo dela */
+                if(jogo->tabuleiro[row][col].vazio){ /* Se existe uma casa vazia abaixo de uma preenchida, existe um buraco */
                     return 1;
                 }
             }
         }
     }
-
-    /*Se o codigo rodou até aqui, ou não exisitia nenhuma casa preenchida, ou não haviam casas vazias entre elas*/
-    /*sem buracos então*/
     return 0;
 }
 
 void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
     int linhaDeEscrita;
-    /*o processo está propositalmente ineficiente, essa logica menos otimizada permite a ilusão de uma animação de queda*/
-    /*se o proposito for otimização maxima, retire o teste da linha de escrita no primeiro if e o laço while*/
+    /* O processo está propositalmente ineficiente, essa logica menos otimizada permite a ilusão de uma animação de queda */
+    /* Se o proposito for otimização maxima, retire o teste da linha de escrita no primeiro if e o laço while */
     while(TemBuracoNaColuna(jogo,col)){
         linhaDeEscrita = linhas - 1;
-        for(int row = (linhas - 1); row >= 0; row--){ /*pecorre a coluna de baixo para cima*/
+        for(int row = (linhas - 1); row >= 0; row--){ /* Pecorre a coluna de baixo para cima */
 
-            /*no primeiro buraco que encontrar, avança o looping para tornar a linha de escrita abaixo da linha de leitura*/
+            /* No primeiro buraco que encontrar, avança o looping para tornar a linha de escrita abaixo da linha de leitura */
             if(jogo->tabuleiro[row][col].vazio && linhaDeEscrita == row){ 
             continue;
             }
 
-            /*se a casa está preenchida e já foi detectado um buraco (linha de estrica diferente da linha de leitura)*/
-            /*ele transfere o conteudo lido para a linha de escrita (vai ser a linha abaixo)*/
+            /* Se a casa está preenchida e já foi detectado um buraco (linha de estrica diferente da linha de leitura) */
+            /* Ele transfere o conteudo lido para a linha de escrita (vai ser a linha abaixo) */
             if(!jogo->tabuleiro[row][col].vazio && linhaDeEscrita != row){
                 Ficha ficha = jogo->tabuleiro[row][col].ficha;
                 limparCasa(jogo, row, col);
@@ -365,11 +360,9 @@ void aplicarGravidadeColuna(Tabuleiro6x7 *jogo, int col){
                 ExibirJogo(jogo);
                 esperar(200);
             }
-
             linhaDeEscrita--;
         }
     }
-
     for(int row = (linhas-1); row >= 0; row--){
         if(!jogo->tabuleiro[row][col].vazio){
             verificaVitoria(jogo, jogo->tabuleiro[row][col].ficha, row, col);
@@ -390,35 +383,34 @@ void preencherCasa(Tabuleiro6x7 *jogo, int row, int col, Ficha ficha){
 }
 
 void posicionarFicha(Tabuleiro6x7 *jogo, int col, Ficha ficha){
-    preencherCasa(jogo,0,col,ficha); /*posiciona a ficha na prieira casa da coluna*/
-    AplicarGravidadeFicha(jogo,col); /*aplica a gravidade para fazer ela descer até o ponto correto, também aplica o teste de vitoria*/
+    preencherCasa(jogo,0,col,ficha); /* Posiciona a ficha na prieira casa da coluna */
+    AplicarGravidadeFicha(jogo,col); /* Aplica a gravidade para fazer ela descer até o ponto correto, também aplica o teste de vitoria */
 }
 
 void verificarJogada(Tabuleiro6x7 *jogo, Ficha ficha){
     int col;
     while(1){
-        /*Tratamento de exceção, para garantir que a jogada é valida*/
         printf("Escolha uma coluna (1-7): ");
 
-        /*Entrada invalida*/
+        /* Entrada invalida */
         if(scanf("%d", &col) == 0){
             printf("\nDigite uma das alternativas!\n");
             while (getchar() != '\n');
             continue;
         }
-        col--; /*redução para se adequar ao index do array (0-6)*/
+        col--; /* Redução para se adequar ao index do array (0-6) */
 
-        /*Out of bounds*/
+        /* Out of bounds */
         if(col < 0 || col >= colunas){
             printf("Coluna invalida. Tente novamente.\n");
             continue;
         }
-        /*Coluna lotada*/
+        /* Coluna lotada */
         if(jogo->tabuleiro[0][col].vazio == 0){
             printf("Coluna cheia. Escolha outra coluna.\n");
             continue;
         }
-        /*Quando a jogada é valida, chama a função que realiza o posicionamento da ficha*/
+        /* Quando a jogada é valida, chama a função que realiza o posicionamento da ficha */
         posicionarFicha(jogo, col, ficha);
         break;
     }
@@ -431,7 +423,7 @@ int existeJogadaValida(Tabuleiro6x7 *jogo){
             return 1;
         }
     }
-    /*se o tabuleiro estiver cheio, decreta empate e finaliza o jogo*/
+    /* Se o tabuleiro estiver cheio, decreta empate e finaliza o jogo */
     printf("Tabuleiro cheio! Jogo empatado.\n");
     jogoContinua = 0;
     return 0;
@@ -443,39 +435,35 @@ Tabuleiro6x7 MontarTabuleiro(int linhas, int colunas){
     Tabuleiro6x7 tab;
     Ficha nula = { { {0} }, "nulo" };
 
-    /*Gera um tabuleiro de fichas nulas com todas as casas definidas como vazias*/
+    /* Gera um tabuleiro de fichas nulas com todas as casas definidas como vazias */
     for(int i = 0; i < linhas; i++){
         for(int j = 0; j < colunas; j++){
             tab.tabuleiro[i][j].ficha = nula;
             tab.tabuleiro[i][j].vazio = 1;
         }
     }
-
     return tab;
 }
 
 Tabuleiro6x7 MontarJogo(){
-    /*cria um novo tabuleiro, e o exibe no terminal*/
+    /* Cria um novo tabuleiro, e o exibe no terminal */
     Tabuleiro6x7 Tabuleiro = MontarTabuleiro(linhas,colunas);
     ExibirJogo(&Tabuleiro);
-
     return Tabuleiro;
 }
 
 // ======= Jogadores
 
 void CriarJogador(jogador *player, int precedencia){
-    /*atualiza os dados do jogador*/
-
-    /*solicita o nome ao usuario*/
+    /* Solicita o nome ao usuario */
     scanf("%s", player->nome);
 
-    /*Quantidade padrão de fichas iniciais*/
+    /* Quantidade padrão de fichas iniciais */
     player->QtdFichaNormal = 21;
     player->QtdFichaExplosiva = 0;
     player->QtdFichaPortal = 0;
 
-    /*Variaveis de turno e ordem de jogada*/
+    /* Variaveis de turno e ordem de jogada */
     player->turno = 0;
     player->precedencia = precedencia;
 }
@@ -492,9 +480,9 @@ void ExibirDadosDeJogador(jogador player){
 }
 
 void IniciarTurnoDoJogador(jogador *player){
-    player->turno++; /*aumenta o turno do jogador*/
+    player->turno++; /* Aumenta o turno do jogador */
 
-    /*se o turno for um multiplo de 5, gera as fichas especiais*/
+    /* Se o turno for um multiplo de 5, gera as fichas especiais */
     if(player->turno%5 == 0 && player->turno != 0){ 
         player->QtdFichaExplosiva += 2;
         player->QtdFichaPortal += 2;
@@ -502,21 +490,20 @@ void IniciarTurnoDoJogador(jogador *player){
 }
 
 Ficha SelecionarFicha(jogador *player){
-    /*Gera uma ficha do tipo selecionada pelo jogador*/
+    /* Gera uma ficha do tipo selecionada pelo jogador */
     int fichaEscolhida = 0;
     Ficha ficha = {*player, "nulo"};
     
     printf("escolha um tipo de ficha: ");
 
-    /*Tratamento de exceção*/
+    /* Tratamento de exceção */
     while(1){
         if(scanf("%d", &fichaEscolhida) == 0){
             printf("\nDigite uma das alternativas!\n");
             while (getchar() != '\n');
             continue;
         }
-
-        /*Ficha normal*/
+        /* Ficha normal */
         if(fichaEscolhida == 1){
             if(player->QtdFichaNormal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
@@ -526,8 +513,7 @@ Ficha SelecionarFicha(jogador *player){
             strcpy(ficha.tipo, "normal");
             return ficha;
         }
-
-        /*Ficha explosiva*/
+        /* Ficha explosiva */
         if(fichaEscolhida == 2){
             if(player->QtdFichaExplosiva == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
@@ -537,8 +523,7 @@ Ficha SelecionarFicha(jogador *player){
             strcpy(ficha.tipo, "explosiva");
             return ficha;
         }
-
-        /*Ficha portal*/
+        /* Ficha portal */
         if(fichaEscolhida == 3){
             if(player->QtdFichaPortal == 0){
                 printf("Ficha esgotada, escolha outra ficha: ");
@@ -548,7 +533,6 @@ Ficha SelecionarFicha(jogador *player){
             strcpy(ficha.tipo, "portal");
             return ficha;
         }
-
         else{
             printf("Valor invalido, digite um novo valor: ");
         }
@@ -592,38 +576,38 @@ void BotJogada(Tabuleiro6x7 *jogo, jogador *bot){
 }
 
 void CriarBot(jogador *bot, int precedencia){
-    /*nome definido pela ordem de jogada*/
+    /* Nome definido pela ordem de jogada */
     if(precedencia == 1)
         strcpy(bot->nome, "bot1");
     else
         strcpy(bot->nome, "bot2");
-    /*Quantidade padrão de fichas iniciais*/
+    /* Quantidade padrão de fichas iniciais */
     bot->QtdFichaNormal = 21;
     bot->QtdFichaExplosiva = 0;
     bot->QtdFichaPortal = 0;
-    /*Controle de turno e ordem de jogada*/
+    /* Controle de turno e ordem de jogada */
     bot->turno = 0;
     bot->precedencia = precedencia;
 }
 
 Ficha BotSelecionarFicha(jogador *bot){
-    /*gera uma ficha do bot com o tipo nulo (o tipo vai ser definido depois)*/
+    /* Gera uma ficha do bot com o tipo nulo (o tipo vai ser definido depois) */
     Ficha ficha = {*bot,"nulo"};
 
-    /*escolhe a ficha normal como padrão*/
+    /* Escolhe a ficha normal como padrão */
     int fichaEscolhida = 1; 
 
-    /*se ele possuir pelo menos uma ficha especial*/
+    /* Se ele possuir pelo menos uma ficha especial */
     if(bot->QtdFichaExplosiva != 0 || bot->QtdFichaPortal != 0){ 
-        /*gera um numero aleatório entre 1 e 3 (definição do tipo)*/
+        /* Gera um numero aleatório entre 1 e 3 (definição do tipo) */
         fichaEscolhida = rand()%3 + 1;
 
-        /*se ele escolheu a ficha explosivasiva mas só tinha ficha Portal, muda o tipo*/
+        /* Se ele escolheu a ficha explosivasiva mas só tinha ficha Portal, muda o tipo */
         if(fichaEscolhida == 2 && bot->QtdFichaExplosiva == 0){ 
             if(bot->QtdFichaNormal > 0) fichaEscolhida = 1;
             else fichaEscolhida = 3;
         }
-        /*se ele escolheu a ficha Portal mas so tinha explosivasiva, muda o tipo*/
+        /* Se ele escolheu a ficha Portal mas so tinha explosivasiva, muda o tipo */
         else if(fichaEscolhida == 3 && bot->QtdFichaPortal == 0){
             if(bot->QtdFichaNormal > 0) fichaEscolhida = 1;
             else fichaEscolhida = 2;
@@ -631,15 +615,15 @@ Ficha BotSelecionarFicha(jogador *bot){
     }
 
     switch(fichaEscolhida){
-        case 1: //ficha normal
+        case 1: // Ficha normal
             bot->QtdFichaNormal--; 
             strcpy(ficha.tipo, "normal");
             break;
-        case 2: //ficha explosivasiva
+        case 2: // Ficha explosiva
             bot->QtdFichaExplosiva--;
             strcpy(ficha.tipo, "explosiva");
             break;
-        case 3: //ficha Portal
+        case 3: // Ficha Portal
             bot->QtdFichaPortal--;
             strcpy(ficha.tipo, "portal");
             break;
@@ -650,11 +634,11 @@ Ficha BotSelecionarFicha(jogador *bot){
 // ======= Fichas especiais
 
 void GerarExplosao(Tabuleiro6x7 *jogo, int row, int col, Ficha gatilho){
-    explodirBomba(jogo,row,col); /*gera a explosão inicial que pode resultar em recursividade*/
+    explodirBomba(jogo,row,col); /* Gera a explosão inicial que pode resultar em recursividade */
 
     for(int col =  0; col < (colunas -1); col++){
-        /*Aplica a gravidade em todo o tabuleiro após a explosão recursiva*/
-        /*Junto com a gravidade, aplica também a verificação de vitoria*/
+        /* Aplica a gravidade em todo o tabuleiro após a explosão recursiva */
+        /* Junto com a gravidade, aplica também a verificação de vitoria */
         aplicarGravidadeColuna(jogo,col);
     }
 
@@ -685,13 +669,13 @@ void explodirBomba(Tabuleiro6x7 *jogo, int row, int col){
             /* Verifica se a casa não está vazia */
             if(jogo->tabuleiro[linha][coluna].vazio == 0){
                 
-                /* Verifica SE É EXPLOSIVA antes de apagar */
+                /* Verifica se é explosiva antes de apagar */
                 int ehExplosiva = (strcmp(jogo->tabuleiro[linha][coluna].ficha.tipo, "explosiva") == 0);
 
                 /* Esvazia a casa (explode a ficha vizinha) */
                 limparCasa(jogo, linha, coluna);
 
-                /*recursividade só acontece se ESTA ficha específica era explosiva */
+                /* Recursividade só acontece se esta ficha específica era explosiva */
                 if(ehExplosiva){
                     explodirBomba(jogo, linha, coluna);
                 }
@@ -716,15 +700,15 @@ void explosaoTardia(Tabuleiro6x7 *jogo){
 }
 
 void Teleportar(Tabuleiro6x7 *jogo, int row, int col){
-    /*Bounds*/
+    /* Bounds */
     if((row+1) < 6){
-        /*Teste de mesmo dono usando a precedencia do jogador*/
+        /* Teste de mesmo dono usando a precedencia do jogador */
         if(jogo->tabuleiro[row][col].ficha.dono.precedencia != jogo->tabuleiro[row + 1][col].ficha.dono.precedencia){
-            /*apaga a ficha adversaria abaixo*/
+            /* Apaga a ficha adversaria abaixo*/
             limparCasa(jogo,(row+1),col);
         }
     }
-    /*sempre se apaga no final*/
+    /* Sempre se apaga no final */
     limparCasa(jogo,row,col);
 }
 
@@ -734,14 +718,14 @@ void PrincipalJxJ(){
     int TurnoGlobal = 0;
     jogador jogador1, jogador2;
 
-    /*Cria os jogadores, solicita os nomes ao usuario*/
+    /* Cria os jogadores, solicita os nomes ao usuario */
     printf("nome do jogador 1: ");
     CriarJogador(&jogador1,1);
 
     printf("nome do jogador 2: ");
     CriarJogador(&jogador2,2);
 
-    /*Inicia o tabuleiro do jogo*/
+    /* Inicia o tabuleiro do jogo */
     Tabuleiro6x7 jogo = MontarJogo();
 
     vitoriaJog1 = 0;
@@ -752,7 +736,7 @@ void PrincipalJxJ(){
         LimparTerminal();
         ExibirJogo(&jogo);
 
-        /*O jogador 2 joga em turnos pares*/
+        /* O jogador 2 joga em turnos pares */
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&jogador2);
             ExibirDadosDeJogador(jogador2);
@@ -762,11 +746,11 @@ void PrincipalJxJ(){
                 verificarJogada(&jogo, Ficha);
             }
         }
-        /*o jogador 1 joga em turnos impares*/
+        /* O jogador 1 joga em turnos impares */
         else{
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
-            /*verifica se o tabuleiro não está lotado*/
+            /* Verifica se o tabuleiro não está lotado */
             if(existeJogadaValida(&jogo)){
                 Ficha Ficha = SelecionarFicha(&jogador1);
                 verificarJogada(&jogo, Ficha);
@@ -795,21 +779,21 @@ void principalJxBot(){
         LimparTerminal();
         ExibirJogo(&jogo);
 
-        /*Bot joga em turnos pares*/
+        /* Bot joga em turnos pares */
         if(TurnoGlobal%2 == 0){
             IniciarTurnoDoJogador(&Jogador2Bot);
             ExibirDadosDeJogador(Jogador2Bot);
             esperar(1500);
-            /*verifica se o tabuleiro não está lotado*/
+            /* Verifica se o tabuleiro não está lotado */
             if(existeJogadaValida(&jogo)){
                 BotJogada(&jogo, &Jogador2Bot);
             }
         }
-        /*jogador joga em turnos impares*/
+        /* Jogador joga em turnos impares */
         else{
             IniciarTurnoDoJogador(&jogador1);
             ExibirDadosDeJogador(jogador1);
-            /*verifica se o tabuleiro não está lotado*/
+            /* Verifica se o tabuleiro não está lotado */
             if(existeJogadaValida(&jogo)){
                 Ficha Ficha = SelecionarFicha(&jogador1);
                 verificarJogada(&jogo, Ficha);
@@ -842,7 +826,7 @@ void principalBotxBot(){
             IniciarTurnoDoJogador(&Jogador2Bot);
             ExibirDadosDeJogador(Jogador2Bot);
             esperar(2000);
-            /*verifica se o tabuleiro não está lotado*/
+            /* Verifica se o tabuleiro não está lotado */
             if(existeJogadaValida(&jogo)){
                 BotJogada(&jogo, &Jogador2Bot);
             }
@@ -851,7 +835,7 @@ void principalBotxBot(){
             IniciarTurnoDoJogador(&jogador1Bot);
             ExibirDadosDeJogador(jogador1Bot);
             esperar(2000);
-            /*verifica se o tabuleiro não está lotado*/
+            /* Verifica se o tabuleiro não está lotado */
             if(existeJogadaValida(&jogo)){
                 BotJogada(&jogo, &jogador1Bot);
             }
@@ -862,9 +846,9 @@ void principalBotxBot(){
 // ====== Hall da fama
 
 void inicializarHallDaFama(){
-    /* abre em leitura */
+    /* Abre em leitura */
     FILE *fp = fopen("hall_da_fama", "r");
-    /* se não existir, cria-se o arquivo */
+    /* Se não existir, cria-se o arquivo */
     if(fp == NULL){
         FILE * createfp = fopen("hall_da_fama", "w");
         if(createfp == NULL){
@@ -878,7 +862,7 @@ void inicializarHallDaFama(){
 }
 
 void limparHallDaFama(){
-    /* basta abrir um arquivo em modo de escrita para sobrescrever ele */
+    /* Basta abrir um arquivo em modo de escrita para sobrescrever ele */
     FILE *fp = fopen("hall_da_fama", "w");
     if(fp == NULL){
         printf("Erro: Falha ao limpar arquivo!\n");
@@ -888,16 +872,16 @@ void limparHallDaFama(){
 }
 
 int lerHallDaFama(jogadorHall *jogadores, int max){
-    /* abre arquivo em leitura */
+    /* Abre arquivo em leitura */
     FILE *fp = fopen("hall_da_fama", "rb");
-    /* verifica se encontrou */
+    /* Verifica se encontrou */
     if(fp == NULL){
         return 0;
     }
-    /* pega o total de elementos dentro do arquivo, enquanto os lê*/
+    /* Pega o total de elementos dentro do arquivo, enquanto os lê*/
     int total = fread(jogadores, sizeof(jogadorHall), max, fp);
 
-    /* fecha arquivo */
+    /* Fecha arquivo */
     fclose(fp);
     return total;
 }
@@ -912,20 +896,20 @@ void adicionarAoHall(jogadorHall jogador){
         return;
     }
 
-    /* inicializa os elementos do vetor */
+    /* Inicializa os elementos do vetor */
     jogadorHall jogadores[4];
     memset(jogadores, 0, sizeof(jogadores));
 
     int total = lerHallDaFama(jogadores, 3);
 
-    /* abre arquivo em escrita binária */
+    /* Abre arquivo em escrita binária */
     FILE *fp = fopen("hall_da_fama", "wb");
     if(fp == NULL){
         printf("Erro: Falha ao escrever arquivo!\n");
         return;
     }
 
-    /* substitui jogador de mesmo nome se pontuação atual for superior */
+    /* Substitui jogador de mesmo nome se pontuação atual for superior */
     int substituiu = 0;
     for(int i = 0; i < total; i++){
         if(strcmp(jogador.nome, jogadores[i].nome) == 0){
@@ -937,9 +921,9 @@ void adicionarAoHall(jogadorHall jogador){
         }
     }
 
-    /* adiciona jogador a lista se não houver substituição */
+    /* Adiciona jogador a lista se não houver substituição */
     if(!substituiu){
-        /* evita buffer overflow */
+        /* Evita buffer overflow */
         if(total < 4){
             jogadores[total++] = jogador;
         }
@@ -956,7 +940,7 @@ void adicionarAoHall(jogadorHall jogador){
         }
     }
 
-    /* sobrescreve com os novos dados */
+    /* Sobrescreve com os novos dados */
     fwrite(jogadores, sizeof(jogadorHall), total > 3 ? 3: total , fp);
 
     fclose(fp);
@@ -967,7 +951,7 @@ void exibirHallDaFama(){
 
     int total = lerHallDaFama(jogadores, 3);
 
-    /* se nenhum jogador encontrado */
+    /* Se nenhum jogador encontrado */
     if(total == 0){
         printf("=================\n");
         printf("Nao ha vitoriosos\n");
@@ -975,7 +959,7 @@ void exibirHallDaFama(){
         return;
     }
 
-    /* para cada jogador exibe seu nome e pontuação */
+    /* Para cada jogador exibe seu nome e pontuação */
     for(int i = 0; i < total; i++){
         printf("-> %i lugar\n", i + 1);
         printf("Nome do jogador: %s\n", jogadores[i].nome);
@@ -983,7 +967,7 @@ void exibirHallDaFama(){
         printf("------------\n");
     }
 
-    /* saída */
+    /* Saída */
     char c;
     printf("Digite algo para sair:");
     getchar();
@@ -1003,7 +987,7 @@ void Lig4(){
     LimparTerminal();
 
     while(1){
-        /*menu principal*/
+        /* Menu principal */
         printf("modos de jogo:\n\n");
         printf("1 - jogador x jogador\n");
         printf("2 - jogador x maquina\n");
@@ -1011,7 +995,7 @@ void Lig4(){
 
         printf("digite 0 para volta.\n");
         
-        /*mantem o looping até uma entrada valida*/
+        /* Mantem o looping até uma entrada valida */
         printf("esolha: ");
         if(scanf("%d", &escolha) == 0){
             LimparTerminal();
@@ -1020,7 +1004,7 @@ void Lig4(){
             continue;
         }
         
-        /*opções de jogo*/
+        /* Opções de jogo */
         switch(escolha){
             case 0:
                 LimparTerminal();
@@ -1047,44 +1031,3 @@ void Lig4(){
         }
     }
 }
-
-// ====== Ambiente de testes
-/*
-int main(){
-
-    vitoriaJog1 = 0;
-    vitoriaJog2 = 0;
-
-    jogador jog1,jog2;
-    
-    CriarBot(&jog1,1);
-    CriarBot(&jog2,2);
-    Tabuleiro6x7 jogo = MontarJogo();
-    Ficha ficha = {jog1,"normal"};
-    Ficha ficha2 = {jog2,"normal"};
-    Ficha fichaExp = {jog2, "explosiva"};
-
-    preencherCasa(&jogo,0,5,ficha);
-    preencherCasa(&jogo,0,4,ficha);
-    preencherCasa(&jogo,0,3,ficha);
-    //preencherCasa(&jogo,0,2,ficha);
-    //preencherCasa(&jogo,0,1,ficha);
-    preencherCasa(&jogo,0,0,ficha);
-
-    preencherCasa(&jogo,1,5,ficha2);
-    preencherCasa(&jogo,1,4,ficha2);
-    preencherCasa(&jogo,1,3,fichaExp);
-    preencherCasa(&jogo,1,2,ficha2);
-    preencherCasa(&jogo,1,1,ficha2);
-    preencherCasa(&jogo,1,0,ficha2);
-    ExibirJogo(&jogo);
-
-    for(int i = 0; i < colunas; i++){
-        aplicarGravidadeColuna(&jogo,i);
-    }
-
-    ExibirJogo(&jogo);
-    printf("%d %d", vitoriaJog1, vitoriaJog2);
-    
-}
-    */
